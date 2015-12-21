@@ -20,7 +20,7 @@
 */
 
 /* jshint multistr: true */
-/* global vAPI, HTMLDocument */
+/* global vAPI, HTMLDocument, XMLDocument */
 
 /******************************************************************************/
 
@@ -36,8 +36,14 @@
 
 // https://github.com/chrisaljoudi/uBlock/issues/464
 if ( document instanceof HTMLDocument === false ) {
-    //console.debug('contentscript-start.js > not a HTLMDocument');
-    return;
+    // https://github.com/chrisaljoudi/uBlock/issues/1528
+    // A XMLDocument can be a valid HTML document.
+    if (
+        document instanceof XMLDocument === false ||
+        document.createElement('div') instanceof HTMLDivElement === false
+    ) {
+        return;
+    }
 }
 
 // This can happen
@@ -91,17 +97,20 @@ var cosmeticFilters = function(details) {
         }
     }
     if ( hide.length !== 0 ) {
-        var text = hide.join(',\n');
-        var style = vAPI.specificHideStyle = document.createElement('style');
+        // https://github.com/gorhill/uBlock/issues/1015
+        // Boost specificity of our CSS rules.
+        var styleText = ':root ' + hide.join(',\n:root ');
+        var style = document.createElement('style');
+        style.setAttribute('type', 'text/css');
         // The linefeed before the style block is very important: do not remove!
-        style.appendChild(document.createTextNode(text + '\n{display:none !important;}'));
+        style.appendChild(document.createTextNode(styleText + '\n{display:none !important;}'));
         //console.debug('µBlock> "%s" cosmetic filters: injecting %d CSS rules:', details.domain, details.hide.length, hideStyleText);
         var parent = document.head || document.documentElement;
         if ( parent ) {
             parent.appendChild(style);
             vAPI.styles.push(style);
         }
-        hideElements(text);
+        hideElements(styleText);
     }
     vAPI.donthideCosmeticFilters = donthideCosmeticFilters;
     vAPI.hideCosmeticFilters = hideCosmeticFilters;
@@ -125,9 +134,11 @@ var netFilters = function(details) {
 var filteringHandler = function(details) {
     var styleTagCount = vAPI.styles.length;
 
-    vAPI.skipCosmeticFiltering = !details || details.skipCosmeticFiltering;
     if ( details ) {
-        if ( details.cosmeticHide.length !== 0 || details.cosmeticDonthide.length !== 0 ) {
+        if (
+            (vAPI.skipCosmeticFiltering = details.skipCosmeticFiltering) !== true &&
+            (details.cosmeticHide.length !== 0 || details.cosmeticDonthide.length !== 0)
+        ) {
             cosmeticFilters(details);
         }
         if ( details.netHide.length !== 0 ) {
@@ -178,15 +189,24 @@ var hideElements = function(selectors) {
     while ( i-- ) {
         elem = elems[i];
         shadow = elem.shadowRoot;
-        if ( shadow !== null && shadow.className === sessionId ) {
+        // https://www.chromestatus.com/features/4668884095336448
+        // "Multiple shadow roots is being deprecated."
+        if ( shadow !== null ) {
+            if ( shadow.className !== sessionId ) {
+                elem.style.setProperty('display', 'none', 'important');
+            }
             continue;
         }
         // https://github.com/gorhill/uBlock/pull/555
         // Not all nodes can be shadowed:
         //   https://github.com/w3c/webcomponents/issues/102
+        // https://github.com/gorhill/uBlock/issues/762
+        // Remove display style that might get in the way of the shadow
+        // node doing its magic.
         try {
             shadow = elem.createShadowRoot();
             shadow.className = sessionId;
+            elem.style.removeProperty('display');
         } catch (ex) {
             elem.style.setProperty('display', 'none', 'important');
         }

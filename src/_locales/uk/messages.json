@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — Журнал мережевих запитів",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Про програму",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"Перейти до журналу запитів",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Увімкнути блокування всіх виринаючих вікон цього сайту",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Перемкнути блокування віддалених шрифтів для цього сайту",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Глобальні правила: цей стовпчик для правил, що застосовуються для всіх сайтів.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Локальні правила: цей стовпчик для правил, що застосовуються лише для цього сайту.\nЛокальні правила замінюють глобальні.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Натисніть, щоб зробити ваші зміни постійними.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Натисніть, щоб відкинути ваші зміни.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"всі",
@@ -167,6 +183,10 @@
     "message":"Показувати кількість заблокованих запитів на піктограмі",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Вимкнути підказки",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Використовувати контекстне меню там, де це можливо",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Підтримка дальтонізму",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Увімкнути підтримку хмарного сховища",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Я досвідчений користувач (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Обов’язково для прочитання<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Ця опція вмикає аналіз та застосування <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">Adblock Plus-сумісних фільтрів &ldquo;приховання елементв&rdquo; <\/a>. По суті це косметичні фільтри – приховують елементи сторінки, які візуально дратують і не можуть бути блоковані механізмом фільтрації  мережевих запитів.<\/p><p>Увімкнення цієї функції збільшує споживання пам’яті <i>µBlock<\/i>'ом.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Перелік заблокованих хостів",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"застаріле",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Востаннє оновленно: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"Через наступний фільтр",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"без параметрів",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Знайдено в:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Завжди",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Експортувати до хмарного сховища",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Імпортувати із хмарного сховища",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Назва цього пристрою:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Надіслати",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Скасувати зміни",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"байтів",
+    "description":""
   },
   "dummy":{
     "message":"Цей запис має бути останнім",

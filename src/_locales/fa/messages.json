@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — لاگ درخواست های شبکه",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"در باره",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"رفتن به لاگ درخواست",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"این سایت پاپ آپی ندارد",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Toggle the blocking of remote fonts for this site",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Global rules: this column is for rules which apply to all sites.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Local rules: this column is for rules which apply to the current site only.\nLocal rules override global rules.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Click to make your changes permanent.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Click to revert your changes.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"همه",
@@ -167,6 +183,10 @@
     "message":"نمایش تعداد درخواست های بلاک شده بر روی آیکون",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Disable tooltips",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"استفاده از منوی متنی در زمانهای لازم",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Color-blind friendly",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Enable cloud storage support",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"من کاربر حرفه ای هستم (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>لازم است بخوانید<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>این گزینه <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">Adblock Plus-compatible &ldquo;element hiding&rdquo; filters<\/a> را  تجزیه و اجرا میکند. این فیلتر ها اساساً فنی هستند،  آنها اشیاء موجود در صفحه وب را که مزاحم تلقی میشوند و با موتور فیلترینگ شبکه قابل بلاک کردن نیستند را حذف میکنند.<\/p><p>فعال کردن این قابلیت مصرف حافظه ی  <i>uBlock<\/i>را افزایش میدهد.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"فهرست میزبان های مسدود شده",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"منقضی شده",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"آخرین به روز رسانی: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"بخاطر فیلتر زیر",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"without parameters",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Found in:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"دائمی",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Export to cloud storage",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Import from cloud storage",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"This device name:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Submit",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"بازگرداندن",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"bytes",
+    "description":""
   },
   "dummy":{
     "message":"این باید آخرین مطلب باشد",

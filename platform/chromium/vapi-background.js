@@ -54,43 +54,90 @@ vAPI.app.restart = function() {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 // chrome.storage.local.get(null, function(bin){ console.debug('%o', bin); });
 
 vAPI.storage = chrome.storage.local;
 
 /******************************************************************************/
+/******************************************************************************/
 
 // https://github.com/gorhill/uMatrix/issues/234
 // https://developer.chrome.com/extensions/privacy#property-network
 
+// 2015-08-12: Wrapped Chrome API in try-catch statements. I had a fluke
+// event in which it appeared Chrome 46 decided to restart uBlock (for
+// unknown reasons) and again for unknown reasons the browser acted as if
+// uBlock did not declare the `privacy` permission in its manifest, putting
+// uBlock in a bad, non-functional state -- because call to `chrome.privacy`
+// API threw an exception.
+
 vAPI.browserSettings = {
     set: function(details) {
+        // https://github.com/gorhill/uBlock/issues/875
+        // Must not leave `lastError` unchecked.
+        var callback = function() {
+            void chrome.runtime.lastError;
+        };
+
         for ( var setting in details ) {
             if ( details.hasOwnProperty(setting) === false ) {
                 continue;
             }
             switch ( setting ) {
             case 'prefetching':
-                chrome.privacy.network.networkPredictionEnabled.set({
-                    value: !!details[setting],
-                    scope: 'regular'
-                });
+                try {
+                    chrome.privacy.network.networkPredictionEnabled.set({
+                        value: !!details[setting],
+                        scope: 'regular'
+                    }, callback);
+                } catch(ex) {
+                    console.error(ex);
+                }
                 break;
 
             case 'hyperlinkAuditing':
-                chrome.privacy.websites.hyperlinkAuditingEnabled.set({
-                    value: !!details[setting],
-                    scope: 'regular'
-                });
+                try {
+                    chrome.privacy.websites.hyperlinkAuditingEnabled.set({
+                        value: !!details[setting],
+                        scope: 'regular'
+                    }, callback);
+                } catch(ex) {
+                    console.error(ex);
+                }
                 break;
 
             case 'webrtcIPAddress':
+                // https://github.com/gorhill/uBlock/issues/533#issuecomment-164292868
+                // If WebRTC is supported, there won't be an exception if we
+                // try to instanciate a peer connection object.
+                var pc = null;
+                try {
+                    var PC = self.RTCPeerConnection || self.webkitRTCPeerConnection;
+                    if ( PC ) {
+                        pc = new PC(null);
+                    }
+                } catch (ex) {
+                    console.error(ex);
+                }
+                if ( pc === null ) {
+                    break;
+                }
+                pc.close();
+
+                // https://github.com/gorhill/uBlock/issues/533
+                // If we reach this point, the property
+                // `webRTCMultipleRoutesEnabled` can be safely accessed.
                 if ( typeof chrome.privacy.network.webRTCMultipleRoutesEnabled === 'object' ) {
-                    chrome.privacy.network.webRTCMultipleRoutesEnabled.set({
-                        value: !!details[setting],
-                        scope: 'regular'
-                    });
+                    try {
+                        chrome.privacy.network.webRTCMultipleRoutesEnabled.set({
+                            value: !!details[setting],
+                            scope: 'regular'
+                        }, callback);
+                    } catch(ex) {
+                        console.error(ex);
+                    }
                 }
                 break;
 
@@ -101,6 +148,7 @@ vAPI.browserSettings = {
     }
 };
 
+/******************************************************************************/
 /******************************************************************************/
 
 vAPI.tabs = {};
@@ -129,7 +177,6 @@ var toChromiumTabId = function(tabId) {
 
 vAPI.tabs.registerListeners = function() {
     var onNavigationClient = this.onNavigation || noopFunc;
-    var onPopupClient = this.onPopup || noopFunc;
     var onUpdatedClient = this.onUpdated || noopFunc;
 
     // https://developer.chrome.com/extensions/webNavigation
@@ -138,58 +185,6 @@ vAPI.tabs.registerListeners = function() {
     //  onCommitted ->
     //  onDOMContentLoaded ->
     //  onCompleted
-
-    var popupCandidates = Object.create(null);
-
-    var PopupCandidate = function(details) {
-        this.targetTabId = details.tabId.toString();
-        this.openerTabId = details.sourceTabId.toString();
-        this.targetURL = details.url;
-        this.selfDestructionTimer = null;
-    };
-
-    PopupCandidate.prototype.selfDestruct = function() {
-        if ( this.selfDestructionTimer !== null ) {
-            clearTimeout(this.selfDestructionTimer);
-        }
-        delete popupCandidates[this.targetTabId];
-    };
-
-    PopupCandidate.prototype.launchSelfDestruction = function() {
-        if ( this.selfDestructionTimer !== null ) {
-            clearTimeout(this.selfDestructionTimer);
-        }
-        this.selfDestructionTimer = setTimeout(this.selfDestruct.bind(this), 10000);
-    };
-
-    var popupCandidateCreate = function(details) {
-        var popup = popupCandidates[details.tabId];
-        // This really should not happen...
-        if ( popup !== undefined ) {
-            return;
-        }
-        return popupCandidates[details.tabId] = new PopupCandidate(details);
-    };
-
-    var popupCandidateTest = function(details) {
-        var popup = popupCandidates[details.tabId];
-        if ( popup === undefined ) {
-            return;
-        }
-        popup.targetURL = details.url;
-        if ( onPopupClient(popup) !== true ) {
-            return;
-        }
-        popup.selfDestruct();
-        return true;
-    };
-
-    var popupCandidateDestroy = function(details) {
-        var popup = popupCandidates[details.tabId];
-        if ( popup instanceof PopupCandidate ) {
-            popup.launchSelfDestruction();
-        }
-    };
 
     // The chrome.webRequest.onBeforeRequest() won't be called for everything
     // else than `http`/`https`. Thus, in such case, we will bind the tab as
@@ -205,22 +200,18 @@ vAPI.tabs.registerListeners = function() {
             details.frameId = 0;
             onNavigationClient(details);
         }
-        popupCandidateCreate(details);
-        popupCandidateTest(details);
+        if ( typeof vAPI.tabs.onPopupCreated === 'function' ) {
+            vAPI.tabs.onPopupCreated(details.tabId.toString(), details.sourceTabId.toString());
+        }
     };
 
     var onBeforeNavigate = function(details) {
         if ( details.frameId !== 0 ) {
             return;
         }
-        //console.debug('onBeforeNavigate: popup candidate tab id %d = "%s"', details.tabId, details.url);
-        popupCandidateTest(details);
     };
 
     var onUpdated = function(tabId, changeInfo, tab) {
-        if ( changeInfo.url && popupCandidateTest({ tabId: tabId, url: changeInfo.url }) ) {
-            return;
-        }
         onUpdatedClient(tabId, changeInfo, tab);
     };
 
@@ -229,11 +220,6 @@ vAPI.tabs.registerListeners = function() {
             return;
         }
         onNavigationClient(details);
-        //console.debug('onCommitted: popup candidate tab id %d = "%s"', details.tabId, details.url);
-        if ( popupCandidateTest(details) === true ) {
-            return;
-        }
-        popupCandidateDestroy(details);
     };
 
     chrome.webNavigation.onCreatedNavigationTarget.addListener(onCreatedNavigationTarget);
@@ -500,6 +486,7 @@ vAPI.tabs.injectScript = function(tabId, details, callback) {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 // Must read: https://code.google.com/p/chromium/issues/detail?id=410868#c8
 
@@ -534,6 +521,7 @@ vAPI.setIcon = function(tabId, iconStatus, badge) {
     chrome.browserAction.setIcon({ tabId: tabId, path: iconPaths }, onIconReady);
 };
 
+/******************************************************************************/
 /******************************************************************************/
 
 vAPI.messaging = {
@@ -752,6 +740,7 @@ vAPI.messaging.broadcast = function(message) {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 vAPI.net = {};
 
@@ -813,20 +802,6 @@ vAPI.net.registerListeners = function() {
         normalizeRequestDetails(details);
         return onBeforeRequestClient(details);
     };
-    chrome.webRequest.onBeforeRequest.addListener(
-        onBeforeRequest,
-        //function(details) {
-        //    quickProfiler.start('onBeforeRequest');
-        //    var r = onBeforeRequest(details);
-        //    quickProfiler.stop();
-        //    return r;
-        //},
-        {
-            'urls': this.onBeforeRequest.urls || ['<all_urls>'],
-            'types': this.onBeforeRequest.types || undefined
-        },
-        this.onBeforeRequest.extra
-    );
 
     var onHeadersReceivedClient = this.onHeadersReceived.callback;
     var onHeadersReceivedClientTypes = this.onHeadersReceived.types.slice(0);
@@ -849,7 +824,7 @@ vAPI.net.registerListeners = function() {
         // something else. Test case for "unfriendly" font URLs:
         //   https://www.google.com/fonts
         if ( details.type === 'object' ) {
-            if ( headerValue(details.responseHeaders, 'content-type').lastIndexOf('font/', 0) === 0 ) {
+            if ( headerValue(details.responseHeaders, 'content-type').startsWith('font/') ) {
                 details.type = 'font';
                 var r = onBeforeRequestClient(details);
                 if ( typeof r === 'object' && r.cancel === true ) {
@@ -865,16 +840,50 @@ vAPI.net.registerListeners = function() {
         }
         return onHeadersReceivedClient(details);
     };
-    chrome.webRequest.onHeadersReceived.addListener(
-        onHeadersReceived,
-        {
-            'urls': this.onHeadersReceived.urls || ['<all_urls>'],
-            'types': onHeadersReceivedTypes
-        },
-        this.onHeadersReceived.extra
-    );
+
+    var installListeners = (function() {
+        var listener;
+        var crapi = chrome.webRequest;
+
+        listener = onBeforeRequest;
+        //listener = function(details) {
+        //    quickProfiler.start('onBeforeRequest');
+        //    var r = onBeforeRequest(details);
+        //    quickProfiler.stop();
+        //    return r;
+        //};
+        if ( crapi.onBeforeRequest.hasListener(listener) === false ) {
+            crapi.onBeforeRequest.addListener(
+                listener,
+                {
+                    'urls': this.onBeforeRequest.urls || ['<all_urls>'],
+                    'types': this.onBeforeRequest.types || undefined
+                },
+                this.onBeforeRequest.extra
+            );
+        }
+
+        listener = onHeadersReceived;
+        if ( crapi.onHeadersReceived.hasListener(listener) === false ) {
+            crapi.onHeadersReceived.addListener(
+                listener,
+                {
+                    'urls': this.onHeadersReceived.urls || ['<all_urls>'],
+                    'types': onHeadersReceivedTypes
+                },
+                this.onHeadersReceived.extra
+            );
+        }
+
+        // https://github.com/gorhill/uBlock/issues/675
+        // Experimental: keep polling to be sure our listeners are still installed.
+        //setTimeout(installListeners, 20000);
+    }).bind(this);
+
+    installListeners();
 };
 
+/******************************************************************************/
 /******************************************************************************/
 
 vAPI.contextMenu = {
@@ -891,11 +900,13 @@ vAPI.contextMenu = {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 vAPI.lastError = function() {
     return chrome.runtime.lastError;
 };
 
+/******************************************************************************/
 /******************************************************************************/
 
 // This is called only once, when everything has been loaded in memory after
@@ -948,6 +959,7 @@ vAPI.onLoadAllCompleted = function() {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 vAPI.punycodeHostname = function(hostname) {
     return hostname;
@@ -957,6 +969,220 @@ vAPI.punycodeURL = function(url) {
     return url;
 };
 
+/******************************************************************************/
+/******************************************************************************/
+
+// https://github.com/gorhill/uBlock/issues/531
+// Storage area dedicated to admin settings. Read-only.
+
+// https://github.com/gorhill/uBlock/commit/43a5ed735b95a575a9339b6e71a1fcb27a99663b#commitcomment-13965030
+// Not all Chromium-based browsers support managed storage. Merely testing or
+// exception handling in this case does NOT work: I don't know why. The
+// extension on Opera ends up in a non-sensical state, whereas vAPI become
+// undefined out of nowhere. So only solution left is to test explicitly for
+// Opera.
+// https://github.com/gorhill/uBlock/issues/900
+// Also, UC Browser: http://www.upsieutoc.com/image/WXuH
+
+vAPI.adminStorage = {
+    getItem: function(key, callback) {
+        var onRead = function(store) {
+            var data;
+            if (
+                !chrome.runtime.lastError &&
+                typeof store === 'object' &&
+                store !== null
+            ) {
+                data = store[key];
+            }
+            callback(data);
+        };
+        try {
+            chrome.storage.managed.get(key, onRead);
+        } catch (ex) {
+            callback();
+        }
+    }
+};
+
+/******************************************************************************/
+/******************************************************************************/
+
+vAPI.cloud = (function() {
+    var chunkCountPerFetch = 16; // Must be a power of 2
+
+    // Mind chrome.storage.sync.MAX_ITEMS (512 at time of writing)
+    var maxChunkCountPerItem = Math.floor(512 * 0.75) & ~(chunkCountPerFetch - 1);
+
+    // Mind chrome.storage.sync.QUOTA_BYTES_PER_ITEM (8192 at time of writing)
+    var maxChunkSize = Math.floor(chrome.storage.sync.QUOTA_BYTES_PER_ITEM * 0.75);
+
+    // Mind chrome.storage.sync.QUOTA_BYTES (128 kB at time of writing)
+    var maxStorageSize = chrome.storage.sync.QUOTA_BYTES;
+
+    var options = {
+        defaultDeviceName: window.navigator.platform,
+        deviceName: window.localStorage.getItem('deviceName') || ''
+    };
+
+    // This is used to find out a rough count of how many chunks exists:
+    // We "poll" at specific index in order to get a rough idea of how
+    // large is the stored string.
+    // This allows reading a single item with only 2 sync operations -- a
+    // good thing given chrome.storage.sync.MAX_WRITE_OPERATIONS_PER_MINUTE
+    // and chrome.storage.sync.MAX_WRITE_OPERATIONS_PER_HOUR.
+
+    var getCoarseChunkCount = function(dataKey, callback) {
+        var bin = {};
+        for ( var i = 0; i < maxChunkCountPerItem; i += 16 ) {
+            bin[dataKey + i.toString()] = '';
+        }
+
+        chrome.storage.sync.get(bin, function(bin) {
+            if ( chrome.runtime.lastError ) {
+                callback(0, chrome.runtime.lastError.message);
+                return;
+            }
+
+            var chunkCount = 0;
+            for ( var i = 0; i < maxChunkCountPerItem; i += 16 ) {
+                if ( bin[dataKey + i.toString()] === '' ) {
+                    break;
+                }
+                chunkCount = i + 16;
+            }
+
+            callback(chunkCount);
+        });
+    };
+
+    var deleteChunks = function(dataKey, start) {
+        var keys = [];
+
+        // No point in deleting more than:
+        // - The max number of chunks per item
+        // - The max number of chunks per storage limit
+        var n = Math.min(
+            maxChunkCountPerItem,
+            Math.ceil(maxStorageSize / maxChunkSize)
+        );
+        for ( var i = start; i < n; i++ ) {
+            keys.push(dataKey + i.toString());
+        }
+        chrome.storage.sync.remove(keys);
+    };
+
+    var start = function(/* dataKeys */) {
+    };
+
+    var push = function(dataKey, data, callback) {
+        var bin = {
+            'source': options.deviceName || options.defaultDeviceName,
+            'tstamp': Date.now(),
+            'data': data,
+            'size': 0
+        };
+        bin.size = JSON.stringify(bin).length;
+        var item = JSON.stringify(bin);
+
+        // Chunkify taking into account QUOTA_BYTES_PER_ITEM:
+        //   https://developer.chrome.com/extensions/storage#property-sync
+        //   "The maximum size (in bytes) of each individual item in sync
+        //   "storage, as measured by the JSON stringification of its value
+        //   "plus its key length."
+        bin = {};
+        var chunkCount = Math.ceil(item.length / maxChunkSize);
+        for ( var i = 0; i < chunkCount; i++ ) {
+            bin[dataKey + i.toString()] = item.substr(i * maxChunkSize, maxChunkSize);
+        }
+        bin[dataKey + i.toString()] = ''; // Sentinel
+
+        chrome.storage.sync.set(bin, function() {
+            var errorStr;
+            if ( chrome.runtime.lastError ) {
+                errorStr = chrome.runtime.lastError.message;
+            }
+            callback(errorStr);
+
+            // Remove potentially unused trailing chunks
+            deleteChunks(dataKey, chunkCount);
+        });
+    };
+
+    var pull = function(dataKey, callback) {
+        var assembleChunks = function(bin) {
+            if ( chrome.runtime.lastError ) {
+                callback(null, chrome.runtime.lastError.message);
+                return;
+            }
+
+            // Assemble chunks into a single string.
+            var json = [], jsonSlice;
+            var i = 0;
+            for (;;) {
+                jsonSlice = bin[dataKey + i.toString()];
+                if ( jsonSlice === '' ) {
+                    break;
+                }
+                json.push(jsonSlice);
+                i += 1;
+            }
+
+            var entry = null;
+            try {
+                entry = JSON.parse(json.join(''));
+            } catch(ex) {
+            }
+            callback(entry);
+        };
+
+        var fetchChunks = function(coarseCount, errorStr) {
+            if ( coarseCount === 0 || typeof errorStr === 'string' ) {
+                callback(null, errorStr);
+                return;
+            }
+
+            var bin = {};
+            for ( var i = 0; i < coarseCount; i++ ) {
+                bin[dataKey + i.toString()] = '';
+            }
+
+            chrome.storage.sync.get(bin, assembleChunks);
+        };
+
+        getCoarseChunkCount(dataKey, fetchChunks);
+    };
+
+    var getOptions = function(callback) {
+        if ( typeof callback !== 'function' ) {
+            return;
+        }
+        callback(options);
+    };
+
+    var setOptions = function(details, callback) {
+        if ( typeof details !== 'object' || details === null ) {
+            return;
+        }
+
+        if ( typeof details.deviceName === 'string' ) {
+            window.localStorage.setItem('deviceName', details.deviceName);
+            options.deviceName = details.deviceName;
+        }
+
+        getOptions(callback);
+    };
+
+    return {
+        start: start,
+        push: push,
+        pull: pull,
+        getOptions: getOptions,
+        setOptions: setOptions
+    };
+})();
+
+/******************************************************************************/
 /******************************************************************************/
 
 })();

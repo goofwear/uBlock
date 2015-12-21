@@ -32,7 +32,7 @@
 var showdomButton = uDom.nodeFromId('showdom');
 
 // Don't bother if the browser is not modern enough.
-if ( typeof Map === undefined || typeof WeakMap === undefined ) {
+if ( typeof Map === undefined || Map.polyfill || typeof WeakMap === undefined ) {
     showdomButton.classList.add('disabled');
     return;
 }
@@ -146,7 +146,7 @@ var renderDOMFull = function(response) {
             lvl -= 1;
         }
         li = nodeFromDomEntry(entry);
-        ul.appendChild(li);
+        appendListItem(ul, li);
     }
     while ( ul.parentNode !== null ) {
         ul = ul.parentNode;

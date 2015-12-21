@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — Tinklo užklausų žurnalas",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Apie",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"Eiti į užklausų žurnalą",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Perjungti visų iškylančiųjų langų blokavimą šiame puslapyje",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Perjungti nuotolinių šriftų blokavimą šiame puslapyje",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Global rules: this column is for rules which apply to all sites.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Local rules: this column is for rules which apply to the current site only.\nLocal rules override global rules.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Click to make your changes permanent.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Click to revert your changes.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"visi",
@@ -167,6 +183,10 @@
     "message":"Rodyti blokuotų užklausų skaičių piktogramoje",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Išjungti paaiškinimus",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Kur tinka, naudoti kontekstinį meniu",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Draugiškas neskiriantiems spalvų",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Įjungti nuotolinės saugyklos palaikymą",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Aš esu patyręs naudotojas (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Privaloma perskaityti<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Ši nuostata įjungia <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">Su Adblock Plus suderinamų „elementų slėpimo“ filtrų<\/a> analizę ir taikymą. Šie filtrai iš esmės yra kosmetiniai, jie naudojami tinklalapio elementams, kurie yra laikomi vaizdiniais nepatogumais ir kurių negalima užblokuoti tinklo užklausomis paremtais filtrais, paslėpti.<\/p><p>Šios nuostatos įjungimas padidina uBlock₀ atminties naudojimą.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Blokuotų serverių sąrašas",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"pasenęs",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Paskutinis atnaujinimas: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"Dėl šio filtro",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"be parametrų",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Rasta:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Negrįžtamai",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Eksportuoti į nuotolinę saugyklą",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importuoti iš nuotolinės saugyklos",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Šio įrenginio vardas:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Pateikti",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Atstatyti",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"baitai",
+    "description":""
   },
   "dummy":{
     "message":"This entry must be the last one",

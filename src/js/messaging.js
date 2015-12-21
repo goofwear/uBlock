@@ -96,9 +96,10 @@ var onMessage = function(request, sender, callback) {
     var response;
 
     switch ( request.what ) {
-    case 'contextMenuEvent':
-        µb.contextMenuClientX = request.clientX;
-        µb.contextMenuClientY = request.clientY;
+    case 'mouseClick':
+        µb.mouseX = request.x;
+        µb.mouseY = request.y;
+        µb.mouseURL = request.url;
         break;
 
     case 'cosmeticFiltersInjected':
@@ -133,7 +134,7 @@ var onMessage = function(request, sender, callback) {
 
     case 'launchElementPicker':
         // Launched from some auxiliary pages, clear context menu coords.
-        µb.contextMenuClientX = µb.contextMenuClientY = -1;
+        µb.mouseX = µb.mouseY = -1;
         µb.elementPickerExec(request.tabId, request.targetURL);
         break;
 
@@ -231,7 +232,9 @@ var getHostnameDict = function(hostnameToCountMap) {
         r[hostname] = {
             domain: domain,
             blockCount: blockCount,
-            allowCount: allowCount
+            allowCount: allowCount,
+            totalBlockCount: 0,
+            totalAllowCount: 0
         };
     }
     return r;
@@ -273,7 +276,7 @@ var getFirewallRules = function(srcHostname, desHostnames) {
 /******************************************************************************/
 
 var popupDataFromTabId = function(tabId, tabTitle) {
-    var tabContext = µb.tabContextManager.lookup(tabId);
+    var tabContext = µb.tabContextManager.mustLookup(tabId);
     var r = {
         advancedUserEnabled: µb.userSettings.advancedUserEnabled,
         appName: vAPI.app.name,
@@ -292,7 +295,8 @@ var popupDataFromTabId = function(tabId, tabTitle) {
         pageAllowedRequestCount: 0,
         pageBlockedRequestCount: 0,
         tabId: tabId,
-        tabTitle: tabTitle
+        tabTitle: tabTitle,
+        tooltipsDisabled: µb.userSettings.tooltipsDisabled
     };
 
     var pageStore = µb.pageStoreFromTabId(tabId);
@@ -466,8 +470,11 @@ var onMessage = function(request, sender, callback) {
 
     switch ( request.what ) {
     case 'retrieveDomainCosmeticSelectors':
-        if ( pageStore && pageStore.getSpecificCosmeticFilteringSwitch() ) {
+        if ( pageStore && pageStore.getNetFilteringSwitch() ) {
             response = µb.cosmeticFilteringEngine.retrieveDomainSelectors(request);
+            if ( response && response.skipCosmeticFiltering !== true ) {
+                response.skipCosmeticFiltering = !pageStore.getSpecificCosmeticFilteringSwitch();
+            }
         }
         break;
 
@@ -518,22 +525,34 @@ var filterRequests = function(pageStore, details) {
 
     //console.debug('messaging.js/contentscript-end.js: processing %d requests', requests.length);
 
-    var µburi = µb.URI;
-    var isBlockResult = µb.isBlockResult;
+    var hostnameFromURI = µb.URI.hostnameFromURI;
+    var redirectEngine = µb.redirectEngine;
+    var punycodeURL = vAPI.punycodeURL;
 
     // Create evaluation context
     var context = pageStore.createContextFromFrameHostname(details.pageHostname);
 
-    var request;
+    var request, r;
     var i = requests.length;
     while ( i-- ) {
         request = requests[i];
-        context.requestURL = vAPI.punycodeURL(request.url);
-        context.requestHostname = µburi.hostnameFromURI(request.url);
-        context.requestType = tagNameToRequestTypeMap[request.tagName];
-        if ( isBlockResult(pageStore.filterRequest(context)) ) {
-            request.collapse = true;
+        context.requestURL = punycodeURL(request.url);
+        // https://github.com/gorhill/uBlock/issues/978
+        // Ignore invalid URLs: these would not occur on the HTTP
+        // observer side.
+        if ( (context.requestHostname = hostnameFromURI(request.url)) === '' ) {
+            continue;
         }
+        context.requestType = tagNameToRequestTypeMap[request.tagName];
+        r = pageStore.filterRequest(context);
+        if ( typeof r !== 'string' || r.charAt(1) !== 'b' ) {
+            continue;
+        }
+        // Redirected? (We do not hide redirected resources.)
+        if ( redirectEngine.matches(context) ) {
+            continue;
+        }
+        request.collapse = true;
     }
     return requests;
 };
@@ -631,14 +650,14 @@ var onMessage = function(request, sender, callback) {
             callback({
                 frameContent: this.responseText.replace(reStrings, replacer),
                 target: µb.epickerTarget,
-                clientX: µb.contextMenuClientX,
-                clientY: µb.contextMenuClientY,
+                clientX: µb.mouseX,
+                clientY: µb.mouseY,
                 eprom: µb.epickerEprom
             });
 
             µb.epickerTarget = '';
-            µb.contextMenuClientX = -1;
-            µb.contextMenuClientY = -1;
+            µb.mouseX = -1;
+            µb.mouseY = -1;
         };
         xhr.send();
         return;
@@ -663,6 +682,68 @@ var onMessage = function(request, sender, callback) {
 };
 
 vAPI.messaging.listen('element-picker.js', onMessage);
+
+/******************************************************************************/
+
+})();
+
+/******************************************************************************/
+/******************************************************************************/
+
+// cloud-ui.js
+
+(function() {
+
+'use strict';
+
+/******************************************************************************/
+
+var µb = µBlock;
+
+/******************************************************************************/
+
+var onMessage = function(request, sender, callback) {
+    // Async
+    switch ( request.what ) {
+    case 'cloudGetOptions':
+        vAPI.cloud.getOptions(function(options) {
+            options.enabled = µb.userSettings.cloudStorageEnabled === true;
+            callback(options);
+        });
+        return;
+
+    case 'cloudSetOptions':
+        vAPI.cloud.setOptions(request.options, callback);
+        return;
+
+    case 'cloudPull':
+        return vAPI.cloud.pull(request.datakey, callback);
+
+    case 'cloudPush':
+        return vAPI.cloud.push(request.datakey, request.data, callback);
+
+    default:
+        break;
+    }
+
+    // Sync
+    var response;
+
+    switch ( request.what ) {
+    // For when cloud storage is disabled.
+    case 'cloudPull':
+        // fallthrough
+    case 'cloudPush':
+        break;
+
+    default:
+        return vAPI.messaging.UNHANDLED;
+    }
+
+    callback(response);
+};
+
+vAPI.messaging.listen('cloud-ui.js', onMessage);
 
 /******************************************************************************/
 
@@ -750,7 +831,7 @@ var onMessage = function(request, sender, callback) {
 
     switch ( request.what ) {
     case 'purgeCache':
-        µb.assets.purge(request.path);
+        µb.assets.purgeCacheableAsset(request.path);
         break;
 
     default:
@@ -785,10 +866,10 @@ var onMessage = function(request, sender, callback) {
     // Async
     switch ( request.what ) {
     case 'readUserFilters':
-        return µb.assets.get(µb.userFiltersPath, callback);
+        return µb.loadUserFilters(callback);
 
     case 'writeUserFilters':
-        return µb.assets.put(µb.userFiltersPath, request.content, callback);
+        return µb.saveUserFilters(request.content, callback);
 
     default:
         break;
@@ -1060,7 +1141,7 @@ var restoreUserData = function(request) {
     var onAllRemoved = function() {
         // Be sure to adjust `countdown` if adding/removing anything below
         µb.keyvalSetOne('version', userData.version);
-        µBlock.saveLocalSettings(true);
+        µBlock.saveLocalSettings();
         vAPI.storage.set(userData.userSettings, onCountdown);
         µb.keyvalSetOne('remoteBlacklists', userData.filterLists, onCountdown);
         µb.keyvalSetOne('netWhitelist', userData.netWhitelist || '', onCountdown);
@@ -1096,7 +1177,7 @@ var resetUserData = function() {
     vAPI.storage.clear();
 
     // Keep global counts, people can become quite attached to numbers
-    µb.saveLocalSettings(true);
+    µb.saveLocalSettings();
 
     vAPI.app.restart();
 };
@@ -1206,7 +1287,7 @@ var onMessage = function(request, sender, callback) {
             if ( pageStore === null ) {
                 continue;
             }
-            if ( pageStore.rawURL.lastIndexOf(loggerURL, 0) === 0 ) {
+            if ( pageStore.rawURL.startsWith(loggerURL) ) {
                 continue;
             }
             tabIds[tabId] = pageStore.title;
@@ -1415,38 +1496,4 @@ vAPI.messaging.listen('scriptlets', onMessage);
 
 
 /******************************************************************************/
-/******************************************************************************/
-
-// devtools
-
-(function() {
-
-'use strict';
-
-/******************************************************************************/
-
-var onMessage = function(request, sender, callback) {
-    // Async
-    switch ( request.what ) {
-    default:
-        break;
-    }
-
-    // Sync
-    var response;
-
-    switch ( request.what ) {
-    default:
-        return vAPI.messaging.UNHANDLED;
-    }
-
-    callback(response);
-};
-
-vAPI.messaging.listen('devtools', onMessage);
-
-/******************************************************************************/
-
-})();
-
 /******************************************************************************/

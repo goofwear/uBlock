@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — Hálózati lekérések naplója",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Névjegy",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"Naplózott lekérések megtekintése",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Oldal összes felugró ablakának blokkolása\/engedélyezése",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Távoli betűkészletek blokkolásának ki\/bekapcsolása ezen az oldalon",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Globális szabályok: ebben az oszlopban azok a szabályok vannak, amelyek minden weboldalra vonatkoznak.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Lokális szabályok: ebben az oszlopban azok a szabályok vannak, amelyek csak a jelenlegi weboldalra vonatkoznak.\nA lokális szabályok felülírják a globális szabályokat.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Kattintson a módosítások véglegesítéséhez.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Kattintson ide a módosítások visszavonásához.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"minden",
@@ -167,6 +183,10 @@
     "message":"Jelenjen meg a blokkolt lekérések száma az ikonon",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Buboréksúgó (tooltip) kikapcsolása",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Környezeti menü alkalmazása, ahol lehetséges",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Színvak-barát",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Felhőben tárolás bekapcsolása",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Haladó felhasználó vagyok (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>További tudnivalók<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Ez a beállítás engedélyezi az <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">Adblock Plus-típusú &ldquo;elemelrejtő&rdquo; szűrőket<\/a>. Ezek kizárólag kozmetikai célokat szolgálnak; elrejtik egy webhely azon elemeit, amelyek vizuálisan zavaróak, de a hálózati lekérések alapján nem szűrhetők ki.<\/p><p>A beállítás engedélyezése megnöveli a <i>uBlock₀<\/i> memóriahasználatát.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Blokkolt hostokat tartalmazó listák",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"elavult",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Utolsó frissítés: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"A következő szűrő miatt",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"paraméterek nélkül",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Ezekben található:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Véglegesen",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Exportálás a felhőszolgáltatásba",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importálás a felhőszolgáltatásból",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Ennek az eszköznek a neve:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Küldés",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Visszaállítás",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"bájtok",
+    "description":""
   },
   "dummy":{
     "message":"Ez a bejegyzés utolsó kell hogy legyen",

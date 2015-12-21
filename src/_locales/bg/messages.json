@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — Дневник на мрежовите заявки",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Относно",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"Преглед на дневника със заявки",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Превключване блокирането на всички изскачащи прозорци за този сайт",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Превключване блокирането на странични шрифтове за този сайт",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Глобални правила: тази колона е за правила, прилагани за всички сайтове.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Локални правила: тази колона е за правила, прилагани само за текущия сайт. Локалните правила са с приоритет пред глобалните.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Щракнете, за да направите промените постоянни.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Щракнете, за да отмените вашите промени.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"Всички",
@@ -167,6 +183,10 @@
     "message":"Показване на брояч в иконката за блокираните заявки",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Изключване на поясненията",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Използване на контекстното меню, когато е възможно",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Достъпност за хора с цветна слепота",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Включване на поддръжка за съхранение в облак",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Аз съм опитен потребител (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Допълнително четиво<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Тази опция дава възможност за анализиране и прилагане на <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\"> съвместими с Adblock  Plus филтри за  &ldquo;скриване на елементи&rdquo;<\/a>. Тези филтри, по същество са козметични и служат за скриване на елементи в web страница, които се считат за визуално неприятни, и които не могат да бъдат блокирани от системата за филтриране на мрежовите заявки.<\/p><p>Активирането на тази функция увеличава паметта, която  <i>uBlock₀<\/i> използва.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Списъци на блокираните хостове",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"Остарял",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Последна актуализация: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"Блокиращ филтър",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"без параметри",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Намерен в:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Постоянно",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Изнасяне в облачно хранилище",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Внасяне от облачно хранилище",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Име на това устройство:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Изпращане",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Връщане",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"байта",
+    "description":""
   },
   "dummy":{
     "message":"Това поле трябва да бъде последното",

@@ -173,7 +173,7 @@ var doesMatchSelector = function(node, selector) {
 /******************************************************************************/
 
 DOMList.prototype.nodeAt = function(i) {
-    return this.nodes[i];
+    return this.nodes[i] || null;
 };
 
 DOMList.prototype.at = function(i) {
@@ -336,7 +336,7 @@ DOMList.prototype.remove = function() {
     var i = this.nodes.length;
     while ( i-- ) {
         cn = this.nodes[i];
-        if ( p = cn.parentNode ) {
+        if ( (p = cn.parentNode) ) {
             p.removeChild(cn);
         }
      }
@@ -713,7 +713,7 @@ DOMList.prototype.trigger = function(etype) {
 
 var onBeforeUnload = function() {
     var entry;
-    while ( entry = listenerEntries.pop() ) {
+    while ( (entry = listenerEntries.pop()) ) {
         entry.dispose();
     }
     window.removeEventListener('beforeunload', onBeforeUnload);

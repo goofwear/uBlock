@@ -32,8 +32,8 @@
     "description":"appears as tab name in dashboard"
   },
   "statsPageName":{
-    "message":"uBlock₀ — מתעד בקשות רשת",
-    "description":"Title for the network request log window"
+    "message":"uBlock₀ — מתעד הבקשות",
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"אודות",
@@ -72,8 +72,8 @@
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"עבור למתעד הבקשות",
-    "description":"English: Go to request log"
+    "message":"פתח את מתעד הבקשות",
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"הפעל\/כבה את החסימה של חלונות קופצים באתר זה",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"הפעל\/כבה את החסימה של פונטים חיצוניים באתר זה",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"חוקים גלובליים: עמודה זו היא עבור חוקים אשר תקפים לכל האתרים.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"חוקים לוקאליים: עמודה זו היא עבור חוקים אשר תקפים לאתר הנוכחי בלבד.\nחוקים לוקאליים דורסים את החוקים גלובליים.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"לחץ על מנת להפוך את השינויים שלך לקבועים.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"לחץ על מנת לבטל את השינויים שלך.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"הכל",
@@ -167,6 +183,10 @@
     "message":"הראה את מספר הבקשות החסומות על האייקון",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"כבה רמזים צצים",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"הצגת הפריט 'חסום אלמנט' בתפריט הלחצן הימני איפה שאפשר",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"ידידותי לעיוורי צבעים",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"הפעל אחסון בענן",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"אני משתמש מתקדם (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>נדרש לקרוא<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>אפשרות זו מאפשרת פירסור ואיפשור של <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">מסנני &ldquo;ההסתרת האלמנטים&rdquo; התואמים ל Adblock Plus<\/a>. מסננים אלו הם קוסמטיים, הם נועדו להסתיר אלמנטים בדף אשר נחשבים למטרד חזותי, ואשר לא יכולים להיחסם על ידי מנוע חסימת בקשות רשת.<\/p><p>הפעלת פיצ'ר זה מעלה את צריכת הזיכרון של <i>uBlock₀<\/i><\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"רשימה של דומיינים חסומים",
@@ -288,8 +312,8 @@
     "description":"English: new version available"
   },
   "3pExternalListObsolete":{
-    "message":"לא עדכני",
-    "description":"English: outdated"
+    "message":"עדכון זמין",
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"עדכון אחרון: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"בגלל המסנן הבא",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"ללא פרמטרים",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"נמצא ב:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"לצמיתות",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"ייצא לאחסון ענן",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"ייבא מאחסון ענן",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"שם המכשיר:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"שלח",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"החזר למצב הקודם",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"בתים",
+    "description":""
   },
   "dummy":{
     "message":"ערך זה חייב להיות האחרון",

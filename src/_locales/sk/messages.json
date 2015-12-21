@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — Záznam sieťových požiadavok",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"O doplnku",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"Prejsť na záznam požiadaviek",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Žiadne vyskakovacie okná pre túto stránku",
@@ -91,6 +91,22 @@
     "message":"Prepnúť blokovanie vzdialených písiem na tejto stránke",
     "description":"English: Toggle the blocking of remote fonts for this site"
   },
+  "popupTipGlobalRules":{
+    "message":"Global rules: this column is for rules which apply to all sites.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Local rules: this column is for rules which apply to the current site only.\nLocal rules override global rules.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Click to make your changes permanent.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Click to revert your changes.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
+  },
   "popupAnyRulePrompt":{
     "message":"všetko",
     "description":""
@@ -104,7 +120,7 @@
     "description":""
   },
   "popup3pPassiveRulePrompt":{
-    "message":"obrázky\/css tretích strán",
+    "message":"CSS\/obrázky tretích strán",
     "description":""
   },
   "popupInlineScriptRulePrompt":{
@@ -167,6 +183,10 @@
     "message":"Zobraziť počet zablokovaných požiadaviek na ikone",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Zakázať tipy pre nástroje",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Používať kontextovú ponuku v prípade potreby",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Režim pre farboslepých",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Povoliť podporu cloudového úložiska",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Som pokročilý používateľ (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Povinne prečítať<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Táto možnosť povoľuje analyzovanie a vynútenie <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">filtrov &ldquo;skrývajúcich prvky&rdquo; a kompatibilných s Adblock Plus<\/a>. Tieto filtre sú prevažne kozmetické. Skrývajú prvky webových stránok, ktoré sú vizuálne otravné a nemôžu byť zablokované filtrovaním sieťových požiadavkov.<\/p><p>Povolenie tejto funkcie zvyšujte nároky <i>uBlock<\/i>na pamäť.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Zoznamy zablokovaných hostiteľov",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"zastarané",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Posledná aktualizácia: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"Kvôli nasledujúcemu filtru",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"bez parametrov",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Nájdený v:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Natrvalo",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Exportovať do cloudového úložiska",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importovať z cloudového úložiska",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Názov tohto zariadenia:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Poslať",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Vrátiť",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"bajtov",
+    "description":""
   },
   "dummy":{
     "message":"This entry must be the last one",

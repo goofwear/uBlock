@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — Nhật ký các yêu cầu",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Giới thiệu",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"Mở nhật kí yêu cầu",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Bật\/tắt chặn popup của trang này",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Bật tắt chặn kiểu chữ từ xa trên trang này",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Quy tắc chung: cột này dành cho quy tắc áp dụng cho mọi trang.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Quy tắc nội bộ: cột này dành cho quy tắc chỉ áp dụng cho trang hiện tại.\nQuy tắc nội bộ sẽ thay thế quy tắc chung.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Bấm để thay đổi vĩnh viễn.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Bấm để hoàn tác thay đổi.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"tất cả",
@@ -167,6 +183,10 @@
     "message":"Hiển thị số lượng yêu cầu bị chặn trên biểu tượng",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Vô hiệu mách nước",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Dùng menu ngữ cảnh nơi thích hợp",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Thân thiện với người mù màu",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Kích hoạt hỗ trợ lưu trữ trực tuyến",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Tôi là một người dùng có kinh nghiệm (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Yêu cầu đọc qua<\/a>)",
@@ -188,7 +212,7 @@
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
-    "message":"Ngăn WebRTC làm lộ địa chỉ IP cục bộ",
+    "message":"Ngặn WebRTC làm lộ địa chỉ IP nội bộ",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Tuỳ chọn này kích hoạt phân tích và áp dụng <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">các bộ lọc &ldquo;ẩn phần tử&rdquo; tương thích với Adblock Plus<\/a>. Những bộ lọc này dùng để ẩn phần tử trong một trang web được xem là gây phiền hà đến thị giác và không thể chặn bởi bộ lọc dựa địa chỉ trang web.<\/p><p>Kích hoạt tính năng này sẽ tăng mức sử dụng bộ nhớ của uBlock₀.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Danh sách những máy chủ bị chặn",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"có thể là lỗi thời",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Cập nhật trước: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"Vì bộ lọc sau",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"không có thông số",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Tìm thấy trong:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Vĩnh viễn",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Xuất ra lưu trữ trực tuyến",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Nhập từ lưu trữ trực tuyến",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Tên thiết bị này:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Gửi",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Phục hồi",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"byte",
+    "description":""
   },
   "dummy":{
     "message":"Đây là mục cuối",

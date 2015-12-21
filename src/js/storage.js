@@ -46,28 +46,26 @@
 
 /******************************************************************************/
 
-µBlock.saveLocalSettings = function(force) {
-    if ( force ) {
-        this.localSettingsModifyTime = Date.now();
-    }
-    if ( this.localSettingsModifyTime <= this.localSettingsSaveTime ) {
-        return;
-    }
-    this.localSettingsSaveTime = Date.now();
-    vAPI.storage.set(this.localSettings);
-};
+µBlock.saveLocalSettings = (function() {
+    var saveAfter = 4 * 60 * 1000;
 
-/******************************************************************************/
+    var save = function() {
+        this.localSettingsSaveTime = Date.now();
+        vAPI.storage.set(this.localSettings);
+    };
 
-// Save local settings regularly. Not critical.
+    var onTimeout = function() {
+        var µb = µBlock;
+        if ( µb.localSettingsModifyTime > µb.localSettingsSaveTime ) {
+            save.call(µb);
+        }
+        vAPI.setTimeout(onTimeout, saveAfter);
+    };
 
-µBlock.asyncJobs.add(
-    'autoSaveLocalSettings',
-    null,
-    µBlock.saveLocalSettings.bind(µBlock),
-    4 * 60 * 1000,
-    true
-);
+    vAPI.setTimeout(onTimeout, saveAfter);
+
+    return save;
+})();
 
 /******************************************************************************/
 
@@ -96,10 +94,7 @@
 /******************************************************************************/
 
 µBlock.saveWhitelist = function() {
-    var bin = {
-        'netWhitelist': this.stringFromWhitelist(this.netWhitelist)
-    };
-    vAPI.storage.set(bin);
+    this.keyvalSetOne('netWhitelist', this.stringFromWhitelist(this.netWhitelist));
     this.netWhitelistModifyTime = Date.now();
 };
 
@@ -130,7 +125,7 @@
             // https://github.com/gorhill/uBlock/issues/277
             // uBlock's filter lists are always enabled by default, so we
             // have to include in backup only those which are turned off.
-            if ( path.lastIndexOf('assets/ublock/', 0) === 0 ) {
+            if ( path.startsWith('assets/ublock/') ) {
                 if ( entry.off !== true ) {
                     delete result[path];
                 }
@@ -150,13 +145,19 @@
     // https://github.com/gorhill/uBlock/issues/63
     // Get built-in block lists: this will help us determine whether a
     // specific list must be included in the result.
-    this.assets.get('assets/ublock/filter-lists.json', onBuiltinListsLoaded);
+    this.loadAndPatchStockFilterLists(onBuiltinListsLoaded);
 };
 
 /******************************************************************************/
 
 µBlock.saveUserFilters = function(content, callback) {
-    return this.assets.put(this.userFiltersPath, content, callback);
+    // https://github.com/gorhill/uBlock/issues/1022
+    // Be sure to end with an empty line.
+    content = content.trim();
+    if ( content !== '' ) {
+        content += '\n';
+    }
+    this.assets.put(this.userFiltersPath, content, callback);
 };
 
 /******************************************************************************/
@@ -188,7 +189,9 @@
         entry.entryUsedCount += deltaEntryUsedCount;
         vAPI.storage.set({ 'remoteBlacklists': µb.remoteBlacklists });
         µb.staticNetFilteringEngine.freeze();
+        µb.redirectEngine.freeze();
         µb.cosmeticFilteringEngine.freeze();
+        µb.selfieManager.create();
     };
 
     var onLoaded = function(details) {
@@ -228,7 +231,7 @@
         var location, availableEntry, storedEntry;
         var off;
 
-        while ( location = locations.pop() ) {
+        while ( (location = locations.pop()) ) {
             storedEntry = lists[location];
             off = storedEntry.off === true;
             // New location?
@@ -245,7 +248,9 @@
                 continue;
             }
             availableEntry.off = off;
-            µb.assets.setHomeURL(location, availableEntry.homeURL);
+            if ( typeof availableEntry.homeURL === 'string' ) {
+                µb.assets.setHomeURL(location, availableEntry.homeURL);
+            }
             if ( storedEntry.entryCount !== undefined ) {
                 availableEntry.entryCount = storedEntry.entryCount;
             }
@@ -328,7 +333,7 @@
     }
 
     // get built-in block lists.
-    this.assets.get('assets/ublock/filter-lists.json', onBuiltinListsLoaded);
+    this.loadAndPatchStockFilterLists(onBuiltinListsLoaded);
 };
 
 /******************************************************************************/
@@ -363,6 +368,7 @@
 
         µb.staticNetFilteringEngine.freeze();
         µb.cosmeticFilteringEngine.freeze();
+        µb.redirectEngine.freeze();
         vAPI.storage.set({ 'remoteBlacklists': µb.remoteBlacklists });
 
         //quickProfiler.stop(0);
@@ -370,7 +376,7 @@
         vAPI.messaging.broadcast({ what: 'allFilterListsReloaded' });
         callback();
 
-        µb.toSelfieAsync();
+        µb.selfieManager.create();
     };
 
     var applyCompiledFilters = function(path, compiled) {
@@ -397,9 +403,10 @@
     var onFilterListsReady = function(lists) {
         µb.remoteBlacklists = lists;
 
+        µb.redirectEngine.reset();
         µb.cosmeticFilteringEngine.reset();
         µb.staticNetFilteringEngine.reset();
-        µb.destroySelfie();
+        µb.selfieManager.destroy();
         µb.staticFilteringReverseLookup.resetLists();
 
         // We need to build a complete list of assets to pull first: this is
@@ -429,6 +436,7 @@
     };
 
     this.getAvailableLists(onFilterListsReady);
+    this.loadRedirectResources();
 };
 
 /******************************************************************************/
@@ -451,7 +459,7 @@
         var listMeta = µb.remoteBlacklists[path];
         // https://github.com/gorhill/uBlock/issues/313
         // Always try to fetch the name if this is an external filter list.
-        if ( listMeta && listMeta.title === '' || /^https?:/.test(path) ) {
+        if ( listMeta && (listMeta.title === '' || listMeta.group === 'custom') ) {
             var matches = details.content.slice(0, 1024).match(/(?:^|\n)!\s*Title:([^\n]+)/i);
             if ( matches !== null ) {
                 listMeta.title = matches[1].trim();
@@ -647,6 +655,25 @@
 
 /******************************************************************************/
 
+µBlock.loadRedirectResources = function(callback) {
+    var µb = this;
+
+    if ( typeof callback !== 'function' ) {
+        callback = this.noopFunc;
+    }
+
+    var onResourcesLoaded = function(details) {
+        if ( details.content !== '' ) {
+            µb.redirectEngine.resourcesFromString(details.content);
+        }
+        callback();
+    };
+
+    this.assets.get('assets/ublock/redirect-resources.txt', onResourcesLoaded);
+};
+
+/******************************************************************************/
+
 µBlock.loadPublicSuffixList = function(callback) {
     var µb = this;
     var path = µb.pslPath;
@@ -680,42 +707,55 @@
 
 /******************************************************************************/
 
-µBlock.toSelfie = function() {
-    var selfie = {
-        magic: this.systemSettings.selfieMagic,
-        publicSuffixList: publicSuffixList.toSelfie(),
-        filterLists: this.remoteBlacklists,
-        staticNetFilteringEngine: this.staticNetFilteringEngine.toSelfie(),
-        cosmeticFilteringEngine: this.cosmeticFilteringEngine.toSelfie()
-    };
-    vAPI.storage.set({ selfie: selfie });
-    //console.debug('storage.js > µBlock.toSelfie()');
-};
-
 // This is to be sure the selfie is generated in a sane manner: the selfie will
 // be generated if the user doesn't change his filter lists selection for
 // some set time.
 
-µBlock.toSelfieAsync = function(after) {
-    if ( typeof after !== 'number' ) {
-        after = this.selfieAfter;
-    }
-    this.asyncJobs.add(
-        'toSelfie',
-        null,
-        this.toSelfie.bind(this),
-        after,
-        false
-    );
-};
+µBlock.selfieManager = (function() {
+    var µb = µBlock;
+    var timer = null;
 
-/******************************************************************************/
+    var create = function() {
+        timer = null;
 
-µBlock.destroySelfie = function() {
-    vAPI.storage.remove('selfie');
-    this.asyncJobs.remove('toSelfie');
-    //console.debug('µBlock.destroySelfie()');
-};
+        var selfie = {
+            magic: µb.systemSettings.selfieMagic,
+            publicSuffixList: publicSuffixList.toSelfie(),
+            filterLists: µb.remoteBlacklists,
+            staticNetFilteringEngine: µb.staticNetFilteringEngine.toSelfie(),
+            redirectEngine: µb.redirectEngine.toSelfie(),
+            cosmeticFilteringEngine: µb.cosmeticFilteringEngine.toSelfie()
+        };
+
+        vAPI.storage.set({ selfie: selfie });
+    };
+
+    var createAsync = function(after) {
+        if ( typeof after !== 'number' ) {
+            after = µb.selfieAfter;
+        }
+
+        if ( timer !== null ) {
+            clearTimeout(timer);
+        }
+
+        timer = vAPI.setTimeout(create, after);
+    };
+
+    var destroy = function() {
+        if ( timer !== null ) {
+            clearTimeout(timer);
+            timer = null;
+        }
+
+        vAPI.storage.remove('selfie');
+    };
+
+    return {
+        create: createAsync,
+        destroy: destroy
+    };
+})();
 
 /******************************************************************************/
 
@@ -726,69 +766,76 @@
 // necessarily present, i.e. administrators may removed entries which
 // values are left to the user's choice.
 
-µBlock.restoreAdminSettings = function() {
-    var data = null;
-    var json = vAPI.localStorage.getItem('adminSettings');
-    if ( typeof json === 'string' && json !== '' ) {
-        try {
-            data = JSON.parse(json);
-        } catch (ex) {
-            console.error(ex);
+µBlock.restoreAdminSettings = function(callback) {
+    var onRead = function(json) {
+        var µb = µBlock;
+        var data;
+        if ( typeof json === 'string' && json !== '' ) {
+            try {
+                data = JSON.parse(json);
+            } catch (ex) {
+                console.error(ex);
+            }
         }
-    }
 
-    if ( typeof data !== 'object' || data === null ) {
-        return;
-    }
+        if ( typeof data !== 'object' || data === null ) {
+            callback();
+            return;
+        }
 
-    var bin = {};
-    var binNotEmpty = false;
+        var bin = {};
+        var binNotEmpty = false;
 
-    if ( typeof data.userSettings === 'object' ) {
-        for ( var name in this.userSettings ) {
-            if ( this.userSettings.hasOwnProperty(name) === false ) {
-                continue;
+        if ( typeof data.userSettings === 'object' ) {
+            for ( var name in µb.userSettings ) {
+                if ( µb.userSettings.hasOwnProperty(name) === false ) {
+                    continue;
+                }
+                if ( data.userSettings.hasOwnProperty(name) === false ) {
+                    continue;
+                }
+                bin[name] = data.userSettings[name];
+                binNotEmpty = true;
             }
-            if ( data.userSettings.hasOwnProperty(name) === false ) {
-                continue;
-            }
-            bin[name] = data.userSettings[name];
+        }
+
+        if ( typeof data.filterLists === 'object' ) {
+            bin.remoteBlacklists = data.filterLists;
             binNotEmpty = true;
         }
-    }
 
-    if ( typeof data.filterLists === 'object' ) {
-        bin.remoteBlacklists = data.filterLists;
-        binNotEmpty = true;
-    }
+        if ( typeof data.netWhitelist === 'string' ) {
+            bin.netWhitelist = data.netWhitelist;
+            binNotEmpty = true;
+        }
 
-    if ( typeof data.netWhitelist === 'string' ) {
-        bin.netWhitelist = data.netWhitelist;
-        binNotEmpty = true;
-    }
+        if ( typeof data.dynamicFilteringString === 'string' ) {
+            bin.dynamicFilteringString = data.dynamicFilteringString;
+            binNotEmpty = true;
+        }
 
-    if ( typeof data.dynamicFilteringString === 'string' ) {
-        bin.dynamicFilteringString = data.dynamicFilteringString;
-        binNotEmpty = true;
-    }
+        if ( typeof data.urlFilteringString === 'string' ) {
+            bin.urlFilteringString = data.urlFilteringString;
+            binNotEmpty = true;
+        }
 
-    if ( typeof data.urlFilteringString === 'string' ) {
-        bin.urlFilteringString = data.urlFilteringString;
-        binNotEmpty = true;
-    }
+        if ( typeof data.hostnameSwitchesString === 'string' ) {
+            bin.hostnameSwitchesString = data.hostnameSwitchesString;
+            binNotEmpty = true;
+        }
 
-    if ( typeof data.hostnameSwitchesString === 'string' ) {
-        bin.hostnameSwitchesString = data.hostnameSwitchesString;
-        binNotEmpty = true;
-    }
+        if ( binNotEmpty ) {
+            vAPI.storage.set(bin);
+        }
 
-    if ( binNotEmpty ) {
-        vAPI.storage.set(bin);
-    }
+        if ( typeof data.userFilters === 'string' ) {
+            µb.assets.put('assets/user/filters.txt', data.userFilters);
+        }
 
-    if ( typeof data.userFilters === 'string' ) {
-        this.assets.put('assets/user/filters.txt', data.userFilters);
-    }
+        callback();
+    };
+
+    vAPI.adminStorage.getItem('adminSettings', onRead);
 };
 
 /******************************************************************************/
@@ -807,7 +854,7 @@
             assets[location] = true;
         }
         assets[µb.pslPath] = true;
-        assets['assets/ublock/mirror-candidates.txt'] = true;
+        assets['assets/ublock/redirect-resources.txt'] = true;
         callback(assets);
     };
 
@@ -856,10 +903,6 @@
         }
     };
 
-    if ( details.hasOwnProperty('assets/ublock/mirror-candidates.txt') ) {
-        /* TODO */
-    }
-
     if ( details.hasOwnProperty(this.pslPath) ) {
         //console.debug('storage.js > µBlock.updateCompleteHandler: reloading PSL');
         this.loadPublicSuffixList(onPSLReady);
@@ -894,9 +937,106 @@
                 continue;
             }
         }
-        this.destroySelfie();
+        this.selfieManager.destroy();
         barrier = false;
     };
 
     return handler;
 })();
+
+/******************************************************************************/
+
+// https://github.com/gorhill/uBlock/issues/602
+// - Load and patch `filter-list.json`
+// - Load and patch user's `remoteBlacklists`
+// - Load and patch cached filter lists
+// - Load and patch compiled filter lists
+//
+// Once enough time has passed to safely assume all uBlock Origin
+// installations have been converted to the new stock filter lists, this code
+// can be removed.
+
+µBlock.patchFilterLists = function(filterLists) {
+    var modified = false;
+    var oldListKey, newListKey, listEntry;
+    for ( var listKey in filterLists ) {
+        if ( filterLists.hasOwnProperty(listKey) === false ) {
+            continue;
+        }
+        oldListKey = listKey;
+        if ( this.oldListToNewListMap.hasOwnProperty(oldListKey) === false ) {
+            oldListKey = 'assets/thirdparties/' + listKey;
+            if ( this.oldListToNewListMap.hasOwnProperty(oldListKey) === false ) {
+                continue;
+            }
+        }
+        newListKey = this.oldListToNewListMap[oldListKey];
+        // https://github.com/gorhill/uBlock/issues/668
+        // https://github.com/gorhill/uBlock/issues/669
+        // Beware: an entry for the new list key may already exists. If it is
+        // the case, leave it as is.
+        if ( newListKey !== '' && filterLists.hasOwnProperty(newListKey) === false ) {
+            listEntry = filterLists[listKey];
+            listEntry.homeURL = undefined;
+            filterLists[newListKey] = listEntry;
+        }
+        delete filterLists[listKey];
+        modified = true;
+    }
+    return modified;
+};
+
+µBlock.loadAndPatchStockFilterLists = function(callback) {
+    var onStockListsLoaded = function(details) {
+        var µb = µBlock;
+        var stockLists;
+        try {
+            stockLists = JSON.parse(details.content);
+        } catch (e) {
+            stockLists = {};
+        }
+
+        // Migrate assets affected by the change to their new name.
+        var reExternalURL = /^https?:\/\//;
+        var newListKey;
+        for ( var oldListKey in stockLists ) {
+            if ( stockLists.hasOwnProperty(oldListKey) === false ) {
+                continue;
+            }
+            // https://github.com/gorhill/uBlock/issues/708
+            // Support migrating external stock filter lists as well.
+            if ( reExternalURL.test(oldListKey) === false ) {
+                oldListKey = 'assets/thirdparties/' + oldListKey;
+            }
+            if ( µb.oldListToNewListMap.hasOwnProperty(oldListKey) === false ) {
+                continue;
+            }
+            newListKey = µb.oldListToNewListMap[oldListKey];
+            if ( newListKey === '' ) {
+                continue;
+            }
+            // Rename cached asset to preserve content -- so it does not
+            // need to be fetched from remote server.
+            µb.assets.rename(oldListKey, newListKey);
+            µb.assets.purge(µb.getCompiledFilterListPath(oldListKey));
+        }
+        µb.patchFilterLists(stockLists);
+
+        // Stock lists information cascades into
+        // - In-memory user's selected filter lists, so we need to patch this.
+        µb.patchFilterLists(µb.remoteBlacklists);
+
+        // Stock lists information cascades into
+        // - In-storage user's selected filter lists, so we need to patch this.
+        vAPI.storage.get('remoteBlacklists', function(bin) {
+            var userLists = bin.remoteBlacklists || {};
+            if ( µb.patchFilterLists(userLists) ) {
+                µb.keyvalSetOne('remoteBlacklists', userLists);
+            }
+            details.content = JSON.stringify(stockLists);
+            callback(details);
+        });
+    };
+
+    this.assets.get('assets/ublock/filter-lists.json', onStockListsLoaded);
+};

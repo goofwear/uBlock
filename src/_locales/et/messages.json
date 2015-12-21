@@ -32,8 +32,8 @@
     "description":"appears as tab name in dashboard"
   },
   "statsPageName":{
-    "message":"uBlock₀ — Võrgutaotluste logi",
-    "description":"Title for the network request log window"
+    "message":"uBlock — Võrgutaotluste logi",
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Teave",
@@ -72,8 +72,8 @@
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"Mine taotluste logisse",
-    "description":"English: Go to request log"
+    "message":"Avage logija",
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Keela hüpikaknad sellel saidil",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Luba väliste fontide blokeerimine sellel saidil",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Üldised reeglid: selle veeru reeglid kehtivad kõikidele saitidele.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Kohalikud reeglid: selle veeru reeglid kehtivad ainult praegusele saidile.\nKohalikud reeglid kirjutavad üldised reeglid üle.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Vajuta, et teha oma muudatused püsivaks.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Vajuta, et võtta muudatused tagasi.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"kõik",
@@ -167,6 +183,10 @@
     "message":"Kuva ikoonil blokeeritud elementide arv",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Keela näpunäited",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Kasuta sobivusel kontekstmenüüd",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Värvipimeduse sõbralik",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Luba pilves hoiustamise tugi",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Olen kogenud kasutaja (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Vajalik lugemus<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>See valik lubab <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">Adblock Plusiga ühilduvate &ldquo;elemente peitvate&rdquo; filtrite<\/a> lubamist. Need filtrid parandavad lehtede välimust, peites elemente, mida ei blokeerita võrgupäringutel põhinevate filtritega.<\/p><p>Selle valiku lubamine suurendab <i>uBlock₀<\/i>'i mälu kasutavust.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Blokeeritud domeenide loendid",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"vananenud",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Viimane uuendus: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"Järgneva filtri tõttu",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"parameetriteta",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Asub filtrites:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Püsivalt",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Ekspordi pilvehoidlasse",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Impordi pilvehoidlast",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Selle seadme nimi:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Saada",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Ennista",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"baiti",
+    "description":""
   },
   "dummy":{
     "message":"See sisestus peab olema viimane",

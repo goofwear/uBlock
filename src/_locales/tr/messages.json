@@ -32,8 +32,8 @@
     "description":"appears as tab name in dashboard"
   },
   "statsPageName":{
-    "message":"uBlock₀ — Ağ istek günlüğü",
-    "description":"Title for the network request log window"
+    "message":"uBlock₀ — Günlükçü",
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Hakkında",
@@ -72,8 +72,8 @@
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"İstek günlüğüne git",
-    "description":"English: Go to request log"
+    "message":"Günlükçüyü açar",
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Bu site için açılır pencere engellemeyi aç\/kapa",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Bu site için uzak yazıtiplerini engellemeyi aç\/kapa",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Genel kurallar: bu sütun tüm sitelere uygulanan kurallar içindir.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Yerel kurallar: bu sütun yalnızca geçerli siteye uygulanan kurallar içindir.\nYerel kurallar genel kuralları geçersiz kılar.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Değişikliklerinizi kalıcı kılmak için tıklayın.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Değişikliklerinizi geri almak için tıklayın.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"tümü",
@@ -167,6 +183,10 @@
     "message":"Engellenmiş reklam sayısını simge üzerinde göster",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"İpuçlarını kapat",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Uygun olduğunda içerik menüsünü kullan",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Renk körü dostu",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Bulut depo desteğini etkinleştir",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Deneyimli bir kullanıcıyım (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Okunması gerekli<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Bu seçenek <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\"> Adblock Plus-uyumlu &ldquo;öğe gizleme&rdquo; süzgeçlerinin<\/a> işlenmesini ve uygulanmasını sağlar. Bu süzgeçler aslında kozmetiktir, bir web sayfasında görsel rahatsızlık yaratan ve ağ isteği-tabanlı süzme motoru tarafından engellenemeyecek olan öğelerin gizlenmesine yarar.<\/p><p>Bu özelliği etkinleştirmek  uBlock₀'in bellek kullanımını artırır.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Engellenmiş alan adlarının listesi",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"eski",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Son güncelleme: {{ago}}",
@@ -552,7 +576,7 @@
     "description":"Firefox\/Fennec-specific: Show Dashboard"
   },
   "showNetworkLogButton":{
-    "message":"Günlüğü Göster",
+    "message":"Günlükçüyü Göster",
     "description":"Firefox\/Fennec-specific: Show Logger"
   },
   "fennecMenuItemBlockingOff":{
@@ -566,6 +590,10 @@
   "docblockedPrompt2":{
     "message":"Aşağıdaki süzgeçten dolayı",
     "description":"English: Because of the following filter"
+  },
+  "docblockedNoParamsPrompt":{
+    "message":"parametresiz",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
   },
   "docblockedFoundIn":{
     "message":"Bulunduğu liste:",
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Kalıcı olarak",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Bulut depoya aktar",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Bulut depodan al",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Bu cihazın adı:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Gönder",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Geri al",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"byte",
+    "description":""
   },
   "dummy":{
     "message":"Bu girdi en sonda olmalıdır",

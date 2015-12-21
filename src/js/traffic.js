@@ -60,7 +60,7 @@ var onBeforeRequest = function(details) {
     var µb = µBlock;
     var pageStore = µb.pageStoreFromTabId(tabId);
     if ( !pageStore ) {
-        var tabContext = µb.tabContextManager.lookup(tabId);
+        var tabContext = µb.tabContextManager.mustLookup(tabId);
         if ( vAPI.isBehindTheSceneTabId(tabContext.tabId) ) {
             return onBeforeBehindTheSceneRequest(details);
         }
@@ -131,9 +131,12 @@ var onBeforeRequest = function(details) {
         µb.updateBadgeAsync(tabId);
     }
 
-    // https://github.com/chrisaljoudi/uBlock/issues/18
-    // Do not use redirection, we need to block outright to be sure the request
-    // will not be made. There can be no such guarantee with redirection.
+    // https://github.com/gorhill/uBlock/issues/949
+    // Redirect blocked request?
+    var url = µb.redirectEngine.toURL(requestContext);
+    if ( url !== undefined ) {
+        return { redirectUrl: url };
+    }
 
     return { cancel: true };
 };
@@ -331,68 +334,22 @@ var onHeadersReceived = function(details) {
         return;
     }
 
-    // Special handling for root document.
-    if ( details.type === 'main_frame' ) {
+    var requestType = details.type;
+
+    if ( requestType === 'main_frame' ) {
         return onRootFrameHeadersReceived(details);
     }
 
-    // Just in case...
-    if ( details.type !== 'sub_frame' ) {
-        return;
+    if ( requestType === 'sub_frame' ) {
+        return onFrameHeadersReceived(details);
     }
-
-    // If we reach this point, we are dealing with a sub_frame
-
-    // Lookup the page store associated with this tab id.
-    var µb = µBlock;
-    var pageStore = µb.pageStoreFromTabId(tabId);
-    if ( !pageStore ) {
-        return;
-    }
-
-    // Frame id of frame request is their own id, while the request is made
-    // in the context of the parent.
-    var context = pageStore.createContextFromFrameId(details.parentFrameId);
-    context.requestURL = details.url;
-    context.requestHostname = details.hostname;
-    context.requestType = 'inline-script';
-
-    var result = pageStore.filterRequestNoCache(context);
-
-    pageStore.logRequest(context, result);
-
-    if ( µb.logger.isEnabled() ) {
-        µb.logger.writeOne(
-            tabId,
-            'net',
-            result,
-            'inline-script',
-            details.url,
-            context.rootHostname,
-            context.pageHostname
-        );
-    }
-
-    // Don't block
-    if ( µb.isAllowResult(result) ) {
-        return;
-    }
-
-    µb.updateBadgeAsync(tabId);
-
-    details.responseHeaders.push({
-        'name': 'Content-Security-Policy',
-        'value': "script-src 'unsafe-eval' *"
-    });
-
-    return { 'responseHeaders': details.responseHeaders };
 };
 
 /******************************************************************************/
 
 var onRootFrameHeadersReceived = function(details) {
-    var tabId = details.tabId;
     var µb = µBlock;
+    var tabId = details.tabId;
 
     µb.tabContextManager.push(tabId, details.url);
 
@@ -431,12 +388,155 @@ var onRootFrameHeadersReceived = function(details) {
 
     µb.updateBadgeAsync(tabId);
 
-    details.responseHeaders.push({
-        'name': 'Content-Security-Policy',
-        'value': "script-src 'unsafe-eval' *"
-    });
+    return { 'responseHeaders': foilInlineScripts(details.responseHeaders) };
+};
 
-    return { 'responseHeaders': details.responseHeaders };
+/******************************************************************************/
+
+var onFrameHeadersReceived = function(details) {
+    var µb = µBlock;
+    var tabId = details.tabId;
+
+    // Lookup the page store associated with this tab id.
+    var pageStore = µb.pageStoreFromTabId(tabId);
+    if ( !pageStore ) {
+        return;
+    }
+
+    // Frame id of frame request is their own id, while the request is made
+    // in the context of the parent.
+    var context = pageStore.createContextFromFrameId(details.parentFrameId);
+    context.requestURL = details.url;
+    context.requestHostname = details.hostname;
+    context.requestType = 'inline-script';
+
+    var result = pageStore.filterRequestNoCache(context);
+
+    pageStore.logRequest(context, result);
+
+    if ( µb.logger.isEnabled() ) {
+        µb.logger.writeOne(
+            tabId,
+            'net',
+            result,
+            'inline-script',
+            details.url,
+            context.rootHostname,
+            context.pageHostname
+        );
+    }
+
+    // Don't block
+    if ( µb.isAllowResult(result) ) {
+        return;
+    }
+
+    µb.updateBadgeAsync(tabId);
+
+    return { 'responseHeaders': foilInlineScripts(details.responseHeaders) };
+};
+
+/******************************************************************************/
+
+var foilInlineScripts = function(headers) {
+    // Below is copy-pasta from uMatrix's project.
+
+    // If javascript is not allowed, say so through a `Content-Security-Policy`
+    // directive.
+    // We block only inline-script tags, all the external javascript will be
+    // blocked by our request handler.
+
+    // https://github.com/gorhill/uMatrix/issues/129
+    // https://github.com/gorhill/uMatrix/issues/320
+    //   Modernize CSP injection:
+    //   - Do not overwrite blindly possibly already present CSP header
+    //   - Add CSP directive to block inline script ONLY if needed
+    //   - If we end up modifying an existing CSP, strip out `report-uri`
+    //     to prevent spurious CSP violations.
+
+    // Is there a CSP header present?
+    // If not, inject a script-src CSP directive to prevent inline javascript
+    // from executing.
+    var i = headerIndexFromName('content-security-policy', headers);
+    if ( i === -1 ) {
+        headers.push({
+            'name': 'Content-Security-Policy',
+            'value': "script-src 'unsafe-eval' *"
+        });
+        return headers;
+    }
+
+    // A CSP header is already present.
+    // Remove the CSP header, we will re-inject it after processing it.
+    // TODO: We are currently forced to add the CSP header at the end of the
+    //       headers array, because this is what the platform specific code
+    //       expect (Firefox).
+    var csp = headers.splice(i, 1)[0].value.trim();
+
+    // Is there a script-src directive in the CSP header?
+    // If not, we simply need to append our script-src directive.
+    // https://github.com/gorhill/uMatrix/issues/320
+    //   Since we are modifying an existing CSP header, we need to strip out
+    //   'report-uri' if it is present, to prevent spurious reporting of CSP
+    //   violation, and thus the leakage of information to the remote site.
+    var matches = reScriptsrc.exec(csp);
+    if ( matches === null ) {
+        csp += "; script-src 'unsafe-eval' *";
+        headers.push({
+            'name': 'Content-Security-Policy',
+            'value': csp.replace(reReporturi, '')
+        });
+        return headers;
+    }
+
+    // A `script-src' directive is already present. Extract it.
+    var scriptsrc = matches[0];
+
+    // Is there at least one 'unsafe-inline' or 'nonce-' token in the
+    // script-src?
+    // If not we have no further processing to perform: inline scripts are
+    // already forbidden by the site.
+    if ( reUnsafeinline.test(scriptsrc) === false ) {
+        headers.push({
+            'name': 'Content-Security-Policy',
+            'value': csp
+        });
+        return headers;
+    }
+
+    // There are tokens enabling inline script tags in the script-src
+    // directive, so we have to strip them out.
+    // Strip out whole script-src directive, remove the offending tokens
+    // from it, then append the resulting script-src directive to the original
+    // CSP header.
+    // https://github.com/gorhill/uMatrix/issues/320
+    //   Since we are modifying an existing CSP header, we need to strip out
+    //   'report-uri' if it is present, to prevent spurious reporting of CSP
+    //   violation, and thus the leakage of information to the remote site.
+    csp = csp.replace(reScriptsrc, '') + scriptsrc.replace(reUnsafeinline, '');
+    headers.push({
+        'name': 'Content-Security-Policy',
+        'value': csp.replace(reReporturi, '')
+    });
+    return headers;
+};
+
+var reReporturi = /report-uri[^;]*;?\s*/;
+var reScriptsrc = /script-src[^;]*;?\s*/;
+var reUnsafeinline = /'unsafe-inline'\s*|'nonce-[^']+'\s*/g;
+
+/******************************************************************************/
+
+// Caller must ensure headerName is normalized to lower case.
+
+var headerIndexFromName = function(headerName, headers) {
+    var i = headers.length;
+    while ( i-- ) {
+        if ( headers[i].name.toLowerCase() === headerName ) {
+            return i;
+        }
+    }
+    return -1;
 };
 
 /******************************************************************************/

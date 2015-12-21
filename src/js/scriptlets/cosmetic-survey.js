@@ -19,7 +19,7 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global vAPI, HTMLDocument */
+/* global vAPI, HTMLDocument, XMLDocument */
 
 /******************************************************************************/
 
@@ -31,8 +31,14 @@
 
 // https://github.com/gorhill/uBlock/issues/464
 if ( document instanceof HTMLDocument === false ) {
-    //console.debug('cosmetic-survey.js > not a HTLMDocument');
-    return;
+    // https://github.com/chrisaljoudi/uBlock/issues/1528
+    // A XMLDocument can be a valid HTML document.
+    if (
+        document instanceof XMLDocument === false ||
+        document.createElement('div') instanceof HTMLDivElement === false
+    ) {
+        return;
+    }
 }
 
 // This can happen
@@ -68,8 +74,7 @@ var localMessager = vAPI.messaging.channel('scriptlets');
 localMessager.send({
     what: 'liveCosmeticFilteringData',
     pageURL: window.location.href,
-    filteredElementCount: filteredElementCount,
-    injectedSelectors: injectedSelectors
+    filteredElementCount: filteredElementCount
 }, function() {
     localMessager.close();
 });

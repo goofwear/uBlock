@@ -19,7 +19,7 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global vAPI, HTMLDocument */
+/* global vAPI, HTMLDocument, XMLDocument */
 
 /******************************************************************************/
 
@@ -31,7 +31,14 @@
 
 // https://github.com/gorhill/uBlock/issues/464
 if ( document instanceof HTMLDocument === false ) {
-    return;
+    // https://github.com/chrisaljoudi/uBlock/issues/1528
+    // A XMLDocument can be a valid HTML document.
+    if (
+        document instanceof XMLDocument === false ||
+        document.createElement('div') instanceof HTMLDivElement === false
+    ) {
+        return;
+    }
 }
 
 // This can happen
@@ -70,7 +77,9 @@ while ( i-- ) {
         continue;
     }
     loggedSelectors[selector] = true;
-    matchedSelectors.push(selector);
+    // https://github.com/gorhill/uBlock/issues/1015
+    // Discard `:root ` prefix.
+    matchedSelectors.push(selector.slice(6));
 }
 
 vAPI.loggedSelectors = loggedSelectors;

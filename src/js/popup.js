@@ -40,10 +40,15 @@ var dfPaneVisibleStored = vAPI.localStorage.getItem('popupFirewallPane') === 'tr
 // dictate the height of the popup. The right pane dictates the height
 // of the popup, and the left pane will have a scrollbar if ever its
 // height is more than what is available.
-document.querySelector('#panes > div:nth-of-type(2)').style.setProperty(
-    'height',
-    document.querySelector('#panes > div:nth-of-type(1)').offsetHeight + 'px'
-);
+(function() {
+    var rpane = document.querySelector('#panes > div:nth-of-type(1)');
+    if ( typeof rpane.offsetHeight === 'number' ) {
+        document.querySelector('#panes > div:nth-of-type(2)').style.setProperty(
+            'height',
+            rpane.offsetHeight + 'px'
+        );
+    }
+})();
 
 // The padlock/eraser must be manually positioned:
 // - Its vertical position depends on the height of the popup title bar
@@ -121,10 +126,12 @@ var cachePopupData = function(data) {
             continue;
         }
         domain = hostnameDict[hostname].domain;
+        prefix = hostname.slice(0, 0 - domain.length);
+        // Prefix with space char for 1st-party hostnames: this ensure these
+        // will come first in list.
         if ( domain === popupData.pageDomain ) {
             domain = '\u0020';
         }
-        prefix = hostname.slice(0, 0 - domain.length);
         hostnameToSortableTokenMap[hostname] = domain + prefix.split('.').reverse().join('.');
     }
     return popupData;
@@ -174,11 +181,16 @@ var formatNumber = function(count) {
 var rulekeyCompare = function(a, b) {
     var ha = a.slice(2, a.indexOf(' ', 2));
     if ( !reIP.test(ha) ) {
-        ha = hostnameToSortableTokenMap[ha] || '';
+        ha = hostnameToSortableTokenMap[ha] || ' ';
     }
     var hb = b.slice(2, b.indexOf(' ', 2));
     if ( !reIP.test(hb) ) {
-        hb = hostnameToSortableTokenMap[hb] || '';
+        hb = hostnameToSortableTokenMap[hb] || ' ';
+    }
+    var ca = ha.charCodeAt(0),
+        cb = hb.charCodeAt(0);
+    if ( ca !== cb ) {
+        return ca - cb;
     }
     return ha.localeCompare(hb);
 };
@@ -802,30 +814,39 @@ var getPopupData = function(tabId) {
 /******************************************************************************/
 
 var onShowTooltip = function() {
-    if ( popupData.advancedUserEnabled ) {
+    if ( popupData.tooltipsDisabled ) {
         return;
     }
 
-    var tip = document.getElementById('tooltip');
     var target = this;
 
+    // Tooltip container
+    var ttc = uDom(target).ancestors('.tooltipContainer').nodeAt(0) ||
+              document.body;
+    var ttcRect = ttc.getBoundingClientRect();
+
+    // Tooltip itself
+    var tip = uDom.nodeFromId('tooltip');
     tip.textContent = target.getAttribute('data-tip');
     tip.style.removeProperty('top');
     tip.style.removeProperty('bottom');
+    ttc.appendChild(tip);
+
+    // Target rect
+    var targetRect = target.getBoundingClientRect();
 
     // Default is "over"
     var pos;
     var over = target.getAttribute('data-tip-position') !== 'under';
     if ( over ) {
-        pos = document.body.getBoundingClientRect().height -
-              target.getBoundingClientRect().top;
+        pos = ttcRect.height - targetRect.top + ttcRect.top;
         tip.style.setProperty('bottom', pos + 'px');
     } else {
-        pos = target.getBoundingClientRect().bottom;
+        pos = targetRect.bottom - ttcRect.top;
         tip.style.setProperty('top', pos + 'px');
     }
 
-    uDom(tip).addClass('show');
+    tip.classList.add('show');
 };
 
 var onHideTooltip = function() {

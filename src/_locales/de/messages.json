@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — Protokoll der Netzwerk-Anforderungen",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Über",
@@ -72,8 +72,8 @@
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"Gehe zu den protokollierten Anfragen",
-    "description":"English: Go to request log"
+    "message":"Protokoll der Netzwerkanfragen öffnen",
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Blockieren von Popups für diese Seite an-\/ausschalten",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Remote-Schriftarten für diese Seite an-\/ausschalten",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Globale Regeln: Diese Spalte ist für Regeln, die bei allen Seiten angewendet werden.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Lokale Regeln: Diese Spalte ist für Regeln, die nur bei dieser Seite angewendet werden.\nLokale Regeln überschreiben globale Regeln.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Klick, um deine Änderungen permanent zu übernehmen.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Klick, um deine Änderungen rückgängig zu machen.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"Alle Ressourcen",
@@ -164,8 +180,12 @@
     "description":"English: Hide placeholders of blocked elements"
   },
   "settingsIconBadgePrompt":{
-    "message":"Zeige die Zahl der blockierten Anfragen auf dem Icon",
+    "message":"Zeige die Zahl der blockierten Anfragen auf dem Symbol",
     "description":"English: Show the number of blocked requests on the icon"
+  },
+  "settingsTooltipsPrompt":{
+    "message":"Tooltips deaktivieren",
+    "description":"A checkbox in the Settings pane"
   },
   "settingsContextMenuPrompt":{
     "message":"Verwende das Kontextmenü, falls möglich",
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Anzeige für farbenblinde Benutzer",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Aktiviere die Unterstützung der Speicherung in der Cloud",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Ich bin ein erfahrener Benutzer (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Pflichtlektüre<\/a>)",
@@ -192,7 +216,7 @@
     "description":"English: "
   },
   "settingsExperimentalPrompt":{
-    "message":"Aktiviere experimentelle Features (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Experimental-features'>About<\/a>)",
+    "message":"Aktiviere experimentelle Funktionen (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Experimental-features'>About<\/a>)",
     "description":"English: Enable experimental features"
   },
   "settingsStorageUsed":{
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Diese Option ermöglicht die Analyse und Anwendung von <a href=\"https:\/\/adblockplus.org\/de\/faq_internal#elemhide\">Adblock-Plus-kompatiblen Filtern zum &ldquo;Verstecken von Elementen&rdquo;<\/a>. Diese Filter sind grundsätzlich kosmetischer Natur und dienen zum Verstecken von Elementen auf einer Webseite, die als optische Belästigung wahrgenommen werden und nicht von den vorhandenen Filtern geblockt werden können.<\/p><p>Das Aktivieren dieser Option erhöht den Speicherbedarf von <i>uBlock₀<\/i>.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Listen blockierter Hostnamen",
@@ -289,10 +313,10 @@
   },
   "3pExternalListObsolete":{
     "message":"veraltet",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
-    "message":"Letztes Update: {{ago}}",
+    "message":"Letzte Aktualisierung: {{ago}}",
     "description":"English: Last update: {{ago}}, where 'ago' will be replaced with something like '2 days ago'"
   },
   "1pFormatHint":{
@@ -344,7 +368,7 @@
     "description":"Will discard manually-edited content and exit manual-edit mode"
   },
   "rulesImport":{
-    "message":"Aus Datei importieren...",
+    "message":"Aus Datei importieren …",
     "description":""
   },
   "rulesExport":{
@@ -376,7 +400,7 @@
     "description":"English: Export"
   },
   "whitelistExportFilename":{
-    "message":"my-ublock-whitelist_{{datetime}}.txt",
+    "message":"meine-ublock-whitelist_{{datetime}}.txt",
     "description":"English: my-ublock-whitelist_{{datetime}}.txt"
   },
   "whitelistApply":{
@@ -488,7 +512,7 @@
     "description":"English: Contributors"
   },
   "aboutBackupDataButton":{
-    "message":"Backup in eine Datei...",
+    "message":"Backup in eine Datei",
     "description":"English: Backup to file"
   },
   "aboutBackupFilename":{
@@ -496,11 +520,11 @@
     "description":"English: my-ublock-backup_{{datetime}}.txt"
   },
   "aboutRestoreDataButton":{
-    "message":"Aus einer Datei wiederherstellen...",
+    "message":"Aus einer Datei wiederherstellen ...",
     "description":"English: Restore from file..."
   },
   "aboutResetDataButton":{
-    "message":"Fange von ganz vorne an...",
+    "message":"Auf Vorgaben zurücksetzen …",
     "description":"English: Reset to default settings..."
   },
   "aboutRestoreDataConfirm":{
@@ -567,6 +591,10 @@
     "message":"Aufgrund des folgenden Filters",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"ohne Parameter",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Gefunden in:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Permanent",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Export in den Cloud-Speicher",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Import aus dem Cloud-Speicher",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Dieser Gerätename:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Absenden",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Rückgängig machen",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"Bytes",
+    "description":""
   },
   "dummy":{
     "message":"Dieser Eintrag muss der letzte sein",

@@ -19,7 +19,7 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global vAPI, HTMLDocument */
+/* global vAPI, HTMLDocument, XMLDocument */
 
 /******************************************************************************/
 /******************************************************************************/
@@ -32,7 +32,14 @@
 
 // https://github.com/gorhill/uBlock/issues/464
 if ( document instanceof HTMLDocument === false ) {
-    return;
+    // https://github.com/chrisaljoudi/uBlock/issues/1528
+    // A XMLDocument can be a valid HTML document.
+    if (
+        document instanceof XMLDocument === false ||
+        document.createElement('div') instanceof HTMLDivElement === false
+    ) {
+        return;
+    }
 }
 
 // This can happen
@@ -618,7 +625,7 @@ var cosmeticFilterFromNode = function(elem) {
     default:
         break;
     }
-    while ( attr = attributes.pop() ) {
+    while ( (attr = attributes.pop()) ) {
         if ( attr.v.length === 0 ) {
             continue;
         }
@@ -707,7 +714,9 @@ var cosmeticFilterMapper = (function() {
         var i = selectors.length;
         var selector, nodes, j, node;
         while ( i-- ) {
-            selector = selectors[i];
+            // https://github.com/gorhill/uBlock/issues/1015
+            // Discard `:root ` prefix.
+            selector = selectors[i].slice(6);
             if ( filterMap.has(rootNode) === false && rootNode[matchesFnName](selector) ) {
                 filterMap.set(rootNode, selector);
                 hideNode(node);
@@ -733,6 +742,7 @@ var cosmeticFilterMapper = (function() {
             nodesFromStyleTag(styleTag, rootNode);
             if ( styleTag.sheet !== null ) {
                 styleTag.sheet.disabled = true;
+                styleTag[vAPI.sessionId] = true;
             }
         }
     };
@@ -750,9 +760,9 @@ var cosmeticFilterMapper = (function() {
             styleTag = styleTags[i];
             if ( styleTag.sheet !== null ) {
                 styleTag.sheet.disabled = false;
+                styleTag[vAPI.sessionId] = undefined;
             }
         }
-        reset();
     };
 
     return {

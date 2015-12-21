@@ -89,23 +89,20 @@ var isIPAddress = function(hostname) {
     if ( reIPv4VeryCoarse.test(hostname) ) {
         return true;
     }
-    return hostname.charAt(0) === '[';
+    return hostname.startsWith('[');
 };
 
 /******************************************************************************/
 
 var toBroaderHostname = function(hostname) {
-    if ( hostname === '*' ) {
-        return '';
-    }
     if ( isIPAddress(hostname) ) {
         return '*';
     }
     var pos = hostname.indexOf('.');
-    if ( pos === -1 ) {
-        return '*';
+    if ( pos !== -1 ) {
+        return hostname.slice(pos + 1);
     }
-    return hostname.slice(pos + 1);
+    return hostname !== '*' && hostname !== '' ? '*' : '';
 };
 
 Matrix.toBroaderHostname = toBroaderHostname;
@@ -206,11 +203,11 @@ Matrix.prototype.hasSameRules = function(other, srcHostname, desHostnames) {
 
     // Specific types
     ruleKey = '* *';
-    if ( thisRules[ruleKey] !== otherRules[ruleKey] ) {
+    if ( (thisRules[ruleKey] || 0) !== (otherRules[ruleKey] || 0) ) {
         return false;
     }
     ruleKey = srcHostname + ' *';
-    if ( thisRules[ruleKey] !== otherRules[ruleKey] ) {
+    if ( (thisRules[ruleKey] || 0) !== (otherRules[ruleKey] || 0) ) {
         return false;
     }
 
@@ -220,11 +217,11 @@ Matrix.prototype.hasSameRules = function(other, srcHostname, desHostnames) {
             continue;
         }
         ruleKey = '* ' + desHostname;
-        if ( thisRules[ruleKey] !== otherRules[ruleKey] ) {
+        if ( (thisRules[ruleKey] || 0) !== (otherRules[ruleKey] || 0) ) {
             return false;
         }
         ruleKey = srcHostname + ' ' + desHostname ;
-        if ( thisRules[ruleKey] !== otherRules[ruleKey] ) {
+        if ( (thisRules[ruleKey] || 0) !== (otherRules[ruleKey] || 0) ) {
             return false;
         }
     }
@@ -328,7 +325,7 @@ var is3rdParty = function(srcHostname, desHostname) {
     // etc.
     var srcDomain = domainFromHostname(srcHostname) || srcHostname;
 
-    if ( desHostname.slice(0 - srcDomain.length) !== srcDomain ) {
+    if ( desHostname.endsWith(srcDomain) === false ) {
         return true;
     }
     // Do not confuse 'example.com' with 'anotherexample.com'
@@ -372,6 +369,10 @@ Matrix.prototype.evaluateCellZY = function(srcHostname, desHostname, type) {
 
     // Specific-destination, any party, any type
     var d = desHostname;
+    if ( d === '' ) {
+        this.r = 0;
+        return this;
+    }
     while ( d !== '*' ) {
         this.y = d;
         if ( this.evaluateCellZ(srcHostname, d, '*') !== 0 ) { return this; }
@@ -393,7 +394,6 @@ Matrix.prototype.evaluateCellZY = function(srcHostname, desHostname, type) {
         }
         // 3rd-party, any type
         if ( this.evaluateCellZ(srcHostname, '*', '3p') !== 0 ) { return this; }
-
     } else if ( type === 'script' ) {
         // 1st party, specific type
         if ( this.evaluateCellZ(srcHostname, '*', '1p-script') !== 0 ) { return this; }
@@ -548,7 +548,7 @@ Matrix.prototype.fromString = function(text, append) {
 
         // Ignore special rules:
         //   hostname-based switch rules
-        if ( fields[0].slice(-1) === ':' ) {
+        if ( fields[0].endsWith(':') ) {
             continue;
         }
 

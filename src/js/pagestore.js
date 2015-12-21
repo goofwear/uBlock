@@ -212,7 +212,7 @@ NetFilteringResultCache.prototype.pruneAsyncCallback = function() {
 /******************************************************************************/
 
 NetFilteringResultCache.prototype.lookup = function(context) {
-    return this.urls[context.requestType + ' ' + context.requestURL];
+    return this.urls[context.requestType + ' ' + context.requestURL] || undefined;
 };
 
 /******************************************************************************/
@@ -292,7 +292,7 @@ PageStore.factory = function(tabId) {
 /******************************************************************************/
 
 PageStore.prototype.init = function(tabId) {
-    var tabContext = µb.tabContextManager.lookup(tabId);
+    var tabContext = µb.tabContextManager.mustLookup(tabId);
     this.tabId = tabId;
     this.tabHostname = tabContext.rootHostname;
     this.title = tabContext.rawURL;
@@ -300,8 +300,6 @@ PageStore.prototype.init = function(tabId) {
     this.hostnameToCountMap = {};
     this.contentLastModified = 0;
     this.frames = {};
-    this.netFiltering = true;
-    this.netFilteringReadTime = 0;
     this.perLoadBlockedRequestCount = 0;
     this.perLoadAllowedRequestCount = 0;
     this.hiddenElementCount = ''; // Empty string means "unknown"
@@ -337,7 +335,7 @@ PageStore.prototype.reuse = function(context) {
     // When force refreshing a page, the page store data needs to be reset.
 
     // If the hostname changes, we can't merely just update the context.
-    var tabContext = µb.tabContextManager.lookup(this.tabId);
+    var tabContext = µb.tabContextManager.mustLookup(this.tabId);
     if ( tabContext.rootHostname !== this.tabHostname ) {
         context = '';
     }
@@ -351,7 +349,6 @@ PageStore.prototype.reuse = function(context) {
         // As part of https://github.com/chrisaljoudi/uBlock/issues/405
         // URL changed, force a re-evaluation of filtering switch
         this.rawURL = tabContext.rawURL;
-        this.netFilteringReadTime = 0;
         return this;
     }
 
@@ -444,32 +441,13 @@ PageStore.prototype.createContextFromFrameHostname = function(frameHostname) {
 /******************************************************************************/
 
 PageStore.prototype.getNetFilteringSwitch = function() {
-    var tabContext = µb.tabContextManager.lookup(this.tabId);
-    if (
-        this.netFilteringReadTime > µb.netWhitelistModifyTime &&
-        this.netFilteringReadTime > tabContext.modifyTime
-    ) {
-        return this.netFiltering;
-    }
-
-    // https://github.com/chrisaljoudi/uBlock/issues/1078
-    // Use both the raw and normalized URLs.
-    this.netFiltering = µb.getNetFilteringSwitch(tabContext.normalURL);
-    if ( this.netFiltering && tabContext.rawURL !== tabContext.normalURL ) {
-        this.netFiltering = µb.getNetFilteringSwitch(tabContext.rawURL);
-    }
-    this.netFilteringReadTime = Date.now();
-    return this.netFiltering;
+    return µb.tabContextManager.mustLookup(this.tabId).getNetFilteringSwitch();
 };
 
 /******************************************************************************/
 
 PageStore.prototype.getSpecificCosmeticFilteringSwitch = function() {
-    if ( this.getNetFilteringSwitch() === false ) {
-        return false;
-    }
-
-    var tabContext = µb.tabContextManager.lookup(this.tabId);
+    var tabContext = µb.tabContextManager.mustLookup(this.tabId);
 
     if ( µb.hnSwitches.evaluateZ('no-cosmetic-filtering', tabContext.rootHostname) ) {
         return false;

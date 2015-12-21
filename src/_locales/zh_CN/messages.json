@@ -32,8 +32,8 @@
     "description":"appears as tab name in dashboard"
   },
   "statsPageName":{
-    "message":"uBlock₀ 网络请求日志",
-    "description":"Title for the network request log window"
+    "message":"uBlock₀ — 网络请求日志",
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"关于",
@@ -72,8 +72,8 @@
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"查看请求日志",
-    "description":"English: Go to request log"
+    "message":"查看网络请求日志",
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"禁止此网站弹出任何窗口",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"阻止此网站的第三方字体",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"全局规则：此列的规则作用于所有网站。",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"本地规则：此列的规则仅作用于当前网站。\n本地规则优先于全局规则。",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"使更改永久生效。",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"还原更改。",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"全部",
@@ -167,6 +183,10 @@
     "message":"在图标上显示拦截请求数",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"不显示悬停提示",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"加入右键菜单",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"适合色盲人士",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"启用云端储存",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"我是高级用户（<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>必读<\/a>）",
@@ -188,7 +212,7 @@
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
-    "message":"避免 WebRTC 泄露本地IP地址",
+    "message":"防止 WebRTC 泄露本地IP地址",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>此选项将启用<a href=\"https:\/\/adblockplus.org\/zh_CN\/faq_internal#elemhide\">与 Adblock Plus 兼容的&ldquo;元素隐藏&rdquo;规则的解析和应用<\/a>。这些过滤规则本质上只是装饰美化，它们用来隐藏一个网页上被认为碍眼且不能被网络请求过滤引擎所屏蔽的视觉元素。<\/p><p>启用这项功能将增加 <i>uBlock₀<\/i> 的内存使用量。<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"被屏蔽站点列表",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"过时的版本",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"上次更新：{{ago}}",
@@ -567,6 +591,10 @@
     "message":"因为下列过滤规则",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"无参数",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"被包含于：",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"永久",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"导出到云端储存",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"从云端储存导入",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"…\n…",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"此设备名称：",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"提交",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"还原",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"字节",
+    "description":""
   },
   "dummy":{
     "message":"此条目必须是最后一个",

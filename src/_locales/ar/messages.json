@@ -1,6 +1,6 @@
 {
   "extName":{
-    "message":"uBlock₀",
+    "message":"يو بلوك أوريجين",
     "description":"extension name."
   },
   "extShortDesc":{
@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"\"uBlock₀\" — سجل الإتصال بالشبكة",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"معلومات عني",
@@ -72,8 +72,8 @@
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"الذهاب الى سجل الطلبات",
-    "description":"English: Go to request log"
+    "message":"إفتح سجل طلبات الشبكة",
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"لا نوافذ منبثقة لهذا الموقع",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"تبديل حجب الخطوط البعيدة لهذا الموقع",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"القواعد العامة: هذا العمود يتعلق بالقواعد التي تنطبق على جميع الموقع.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"القواعد الموضعية: هذا العمود يتعلق بالقواعد التي تنطبق فقط على الموقع المزار حاليا.\nالقواعد الموضعية تحل محل القواعد العامة.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"إضغط لحفظ التغييرات بشكل دائم.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"إضغط لتعيد التغييرات للوضع السابِق.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"كل",
@@ -167,6 +183,10 @@
     "message":"عرض عدد طلبات المحضوره على الايقونه",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"تعطيل التلميحات",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"إستخدم لائحة السياق في المكان المناسب",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"وضع عمى الألوان",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"تفعيل دعم سحابة التخزين",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"إظهار الإعدادات المتقدمة (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>يجب القراءة<\/a>)",
@@ -232,11 +256,11 @@
     "description":"English: Parse and enforce Adblock+ element hiding filters."
   },
   "3pParseAllABPHideFiltersInfo":{
-    "message":"هذا الخيار يفعل تحليل وتطبيق فلاتر <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">Adblock Plus-compatible &ldquo;element hiding&rdquo; filters<\/a> هذي الفلاتر مخصصه للتجميل الصفحه. هذي الفلاتر تخفي بعض صناديق او اعلانات المزعجه التي لا يمنعها محرك الفلاتر تفعيل هذي الخاصيه سوف يجعل الاضافه تستعمل الذاكره اكثر",
-    "description":"English: see English messages.json"
+    "message":"<p>هذا الخيار يمكّن من تحليل و تطبيق <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">فلاتر متطابقة مع فلاتر &rdquo;إخفاء العناصر&ldquo; لتطبيق آدبلوك بلس<\/a>. هذه الفلاتر جماليّة بالأساس، تهدف إلى إخفاء عناصر في صفحة الواب، و اللتي تعتبر إزعاجا بصريّا، قد لا يتمكّن محرّك فلاتر الرّوابط من كشفها و صدّها.<\/p><p>تفعيل هذا الخيار من شأنه زيادة أثر الذّاكرة uBlock₀<\/p>",
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
-    "message":"لستة مواقع المحضوره",
+    "message":"قائمة المواقع المحجوبة",
     "description":"English: Lists of blocked hosts"
   },
   "3pApplyChanges":{
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"قد يكون قديم ولا يعمل ",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"آخر تحديث: {{ago}}",
@@ -328,7 +352,7 @@
     "description":"This will remove all temporary rules"
   },
   "rulesCommit":{
-    "message":"إضافة",
+    "message":"تطبق",
     "description":"This will persist temporary rules"
   },
   "rulesEdit":{
@@ -567,6 +591,10 @@
     "message":"بسبب الفلتر التالي",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"دون معلمات",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"موجود في:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"بشكل دائم",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"التصدير إلى سحابة التخزين",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"إستيراد من سحابة التخزين",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"إسم هذا الجهاز:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"تطبيق",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"إلغاء",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"بايت",
+    "description":""
   },
   "dummy":{
     "message":"يجب أن يكون هذا الإدخال آخر واحد",

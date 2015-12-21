@@ -32,8 +32,8 @@
     "description":"appears as tab name in dashboard"
   },
   "statsPageName":{
-    "message":"uBlock₀ — Netwerkverzoeken-logboek",
-    "description":"Title for the network request log window"
+    "message":"uBlock₀ — Logboek",
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Over",
@@ -72,8 +72,8 @@
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"Naar verzoekenlogboek gaan",
-    "description":"English: Go to request log"
+    "message":"Naar logboek gaan",
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Alle pop-ups voor deze website in-\/uitschakelen",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Blokkeren van externe lettertypen voor deze site in-\/uitschakelen",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Globale regels: deze kolom is voor regels die op alle sites van toepassing zijn.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Lokale regels: deze kolom is voor regels die alleen op de huidige site van toepassing zijn.\nLokale regels hebben voorrang op globale regels.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Klik om je veranderingen permanent te maken.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Klik om je veranderingen terug te draaien.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"alles",
@@ -167,13 +183,21 @@
     "message":"Het aantal geblokkeerde aanvragen op het icoon tonen",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Tooltips uitschakelen",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Waar mogelijk van het contextmenu gebruik maken",
     "description":"English: Make use of context menu where appropriate"
   },
   "settingsColorBlindPrompt":{
-    "message":"Kleurenblind-vriendelijk",
+    "message":"Vriendelijk voor kleurenblinden",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Ondersteuning voor cloud-opslag inschakelen",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Ik ben een ervaren gebruiker (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Lees dit eerst<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Deze optie schakelt het inlezen en toepassen van <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">Adblock Plus-compatibele &ldquo;element hiding&rdquo; filters<\/a> in. Deze filters zijn puur cosmetisch: ze verbergen elementen in de webpagina die visueel storend kunnen zijn en kunnen dus niet geblokkeerd worden door de op netverzoeken gebaseerde filterengine.<\/p><p>Het inschakelen van deze functie verhoogt het geheugengebruik van uBlock₀.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Lijst van geblokkeerde hosts",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"verouderd",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Laatste update: {{ago}}",
@@ -548,11 +572,11 @@
     "description":"English: {{value}} days ago"
   },
   "showDashboardButton":{
-    "message":"Toon Dashboard",
+    "message":"Dashboard tonen",
     "description":"Firefox\/Fennec-specific: Show Dashboard"
   },
   "showNetworkLogButton":{
-    "message":"Netwerkverzoeken-logboek tonen",
+    "message":"Logboek tonen",
     "description":"Firefox\/Fennec-specific: Show Logger"
   },
   "fennecMenuItemBlockingOff":{
@@ -560,12 +584,16 @@
     "description":"Firefox-specific: appears as 'uBlock₀ (off)'"
   },
   "docblockedPrompt1":{
-    "message":"uBlock Origin heeft het laden van de volgende pagina voorkomen:",
+    "message":"uBlock₀ heeft het laden van de volgende pagina voorkomen:",
     "description":"English: uBlock₀ has prevented the following page from loading:"
   },
   "docblockedPrompt2":{
     "message":"Vanwege het volgende filter",
     "description":"English: Because of the following filter"
+  },
+  "docblockedNoParamsPrompt":{
+    "message":"zonder parameters",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
   },
   "docblockedFoundIn":{
     "message":"Gevonden in:",
@@ -580,7 +608,7 @@
     "description":"English: Close this window"
   },
   "docblockedProceed":{
-    "message":"Strikte blokkering uitschakelen voor {{hostname}}",
+    "message":"Strikte blokkering voor {{hostname}} uitschakelen",
     "description":"English: Disable strict blocking for {{hostname}} ..."
   },
   "docblockedDisableTemporary":{
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Permanent",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Naar cloudopslag exporteren",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Van cloudopslag importeren",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"... \n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Apparaatnaam:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Verzenden",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Ongedaan maken",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"bytes",
+    "description":""
   },
   "dummy":{
     "message":"This entry must be the last one",

@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — Rexistro de peticións de rede",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Sobre",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"Ir ó rexistro de peticións",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Activar todas as xanelas emerxentes nesta páxina",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Activar o bloqueo de fontes remotas para esta páxina",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Reglas globais: esta columna é para as reglas que afectan a todos os sitios.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Reglas locais: esta columna é para as reglas que afectan só a un sitio. As reglas locais anteponse ás globais.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Fai click para gardar os cambios.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Fai click para desfacer os cambios.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"todo",
@@ -167,6 +183,10 @@
     "message":"Amosar o número de peticións bloqueadas no icono",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Desactivar axuda emerxente",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Empregar o menú contextual cando sexa posible",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Accesible para daltónicos",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Activar soporte para almacenamento na nube",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Sonche un usuario experto (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Precisas ler isto<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Esta opción permitirache a análise e a aplicación de <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">&ldquo;filtros de ocultación de elementos&rdquo; compatibles co Adblock Plus<\/a>. \nEstes filtros sonche sobre todo cosméticos, serven para agochar elementos visualmente molestos nunha determinada páxina, non sendo posible a súa eliminación cun motor de bloqueo baseado en peticións.<\/p><p>Activar esta opción incrementará o uso de memoria do <i>uBlock₀<\/i>.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Lista dos servidores bloqueados",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"desactualizado",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Última actualización: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"Por mor deste filtro:",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"sen parámetros",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Atopado en:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Permanentemente",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Exportar ó almacenamento na nube",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importar dende o almacenamento na nube",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"O nome deste dispositivo:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Enviar",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Reverter",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"bytes",
+    "description":""
   },
   "dummy":{
     "message":"Esta ten que ser a derradeira entrada",

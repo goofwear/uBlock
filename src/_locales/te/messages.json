@@ -32,8 +32,8 @@
     "description":"appears as tab name in dashboard"
   },
   "statsPageName":{
-    "message":"uBlock₀ — నెట్వర్క్ అభ్యర్ధనల చిట్టా",
-    "description":"Title for the network request log window"
+    "message":"uBlock₀ — నెట్వర్కు అభ్యర్ధనల చిట్టా",
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"మా గురించి",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"అభ్యర్ధనల చిట్టా తెరువుము",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"ఈ వెబ్సైట్ లో అన్ని పాప్అప్స్ ని నిషేధించు",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"ఈ సైట్ నుండి వచ్చే ఖతుల యొక్క వాడుక ని సక్రియ లేదా నిర్వీర్యపరచు",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Global rules: this column is for rules which apply to all sites.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Local rules: this column is for rules which apply to the current site only.\nLocal rules override global rules.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Click to make your changes permanent.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Click to revert your changes.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"అన్ని",
@@ -124,7 +140,7 @@
     "description":""
   },
   "popupHitDomainCountPrompt":{
-    "message":"అనుసంధానించబడిన డొమైన్స్",
+    "message":"అనుసంధానించబడిన డొమైన్లు",
     "description":"appears in popup"
   },
   "popupHitDomainCount":{
@@ -167,6 +183,10 @@
     "message":"చిహ్నంపై నిరొధించబడిన అభ్యర్దనల సంఖ్య చూపుము",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"టూల్టిప్స్ ను అచేతనపరచు",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"అనువైనచోట్లలో కుడి-క్లిక్ మెనూని ఉపయోగించుము",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"వర్ణ అంధులకనుకూలమైన",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"క్లౌడ్ లో పొందుపర్చడాన్న్ది అనుమతించు",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"నేనొక నిపుణత కలిగిన వినియోగదారున్ని(<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>అయితే ఇదే తప్పనిసరిగా చదవాలి<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>ఈ ఎంపిక  <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">Adblock Plus-అనుకూల &ldquo;అంశాల దపరికాన్ని&rdquo; వడపోతలను<\/a> పదనిరుపనచేసి లాగుపరుస్తుంది. ఈ వడపోతలు చాలావరకు కాస్మెటిక్ అయివుంటాయి, అవి నెట్వర్క్ అభ్యర్ధన నిరోదన ద్వారా నిరోధించాబడలేని అవాంఛిథ అంశాలను దాచుటకు ఉపకరిస్తాయి.<\/p><p>ఈ ఎంపిక ను ఎంచుకున్నయేడల uBlock₀ యొక్క మెమరీ వాడుక పెరిగే ఆస్కారమున్నది<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"నిరోధించబడిన చిరునామాల జాబితా",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"పాతబడింది",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"గత నవీకరణ: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"ఇది ఈ క్రింది వడపోతననుసారించి తీసుకోబడిన చర్య",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"పారామితులు లేని",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"ఈ వడపోత వున్న జాబితా పేరు:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"శాశ్వతంగా",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"క్లౌడ్ లో పొందుపరచు",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"క్లౌడ్ నుండి దిగుమతిపరచు",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"ఈ పరికరం పేరు:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"పంపిందు",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"మార్పులను తిరస్కరించు",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"బైట్లు",
+    "description":""
   },
   "dummy":{
     "message":"ఇది అంతిమంగా వుండాల్సిన నమోదు",

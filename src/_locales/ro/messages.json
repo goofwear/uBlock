@@ -16,7 +16,7 @@
     "description":"appears as tab name in dashboard"
   },
   "3pPageName":{
-    "message":"Filtre externe",
+    "message":"Filtre terțe",
     "description":"appears as tab name in dashboard"
   },
   "1pPageName":{
@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — Jurnalul cererilor de rețea",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Despre",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"Deschide jurnalul cererilor",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Comută blocarea tuturor popup-urilor pentru acest sait",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Comută blocarea fonturilor externe pentru acest sait",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Reguli globale: această coloană este pentru regulile care se aplică tuturor site-urilor.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Reguli locale: această coloană este pentru regulile care se aplică doar site-ului curent.\nRegulile locale suprascriu pe cele globale.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Apasă pentru a face modificările permanente.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Apasă pentru a renunța la modificări.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"tot",
@@ -167,6 +183,10 @@
     "message":"Arată numărul cererilor blocate pe pictogramă",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Dezactivează ponturile",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Folosește meniul contextual unde este cazul",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"Accesibil pentru daltonism",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Activează suportul pentru stocare în cloud",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Sunt un utilizator avansat (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Lectură obligatorie<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Această opțiune permite citirea și aplicarea <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">filtrelor compatibile Adblock Plus pentru &ldquo;ascunderea elementelor&rdquo;<\/a>. Aceste filtre sunt în esență vizuale, ele servesc la ascunderea elementelor dintr-o pagină web care sunt considerate drept o neplăcere vizuală și care nu pot fi blocate de motorul de filtrare bazat pe cereri de rețea.<\/p><p>Activând această opțiune memoria utilizată de uBlock₀ va crește.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Lista adreselor blocate",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"învechit",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Ultima actualizare: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"Din cauza următorului filtru",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"fără parametri",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Găsit în:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Permanent",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Exportă către stocarea în cloud",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importă din stocarea în cloud",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Numele acestui dispozitiv:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Trimite",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Înlătură",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"octeți",
+    "description":""
   },
   "dummy":{
     "message":"Aceasta intrare trebuie sa fie ultima",

@@ -32,8 +32,8 @@
     "description":"appears as tab name in dashboard"
   },
   "statsPageName":{
-    "message":"uBlock₀ — Catatan Permintaan Jaringan",
-    "description":"Title for the network request log window"
+    "message":"uBlock₀ — Pencatat Log",
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Tentang",
@@ -72,8 +72,8 @@
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"Kunjungi catatan permintaan",
-    "description":"English: Go to request log"
+    "message":"Buka pencatat log",
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"Alihkan pemblokiran semua popup untuk situs ini",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"Jungkit pemblokiran fon pihak ketiga untuk situs ini",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"Aturan global: kolom ini untuk aturan yang diterapkan ke semua situs.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Aturan lokal: kolom ini untuk aturan yang diterapkan ke situs yang sedang dikunjungi saja.\nAturan lokal menimpa aturan global.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Klik untuk membuat ubahan Anda permanen.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Klik untuk membatalkan ubahan Anda.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"semua",
@@ -167,6 +183,10 @@
     "message":"Tampilkan jumlah permintaan yang diblokir pada ikon",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"Nonaktifkan tip alat",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"Pergunakan menu konteks jika sesuai",
     "description":"English: Make use of context menu where appropriate"
@@ -175,8 +195,12 @@
     "message":"Ramah buta warna",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Fungsikan dukungan penyimpanan awan",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
-    "message":"Saya pengguna tingkat lanjut (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Bacaan wajib<\/a>)",
+    "message":"Saya pengguna tingkat lanjut (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Wajib dibaca<\/a>)",
     "description":"English: "
   },
   "settingsPrefetchingDisabledPrompt":{
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Opsi ini memfungsikan penguraian dan memaksa-jalankan <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">filter &ldquo;penyembunyian elemen&rdquo; yang kompatibel dengan Adblock Plus<\/a>. Filter ini pada dasarnya hanya sekedar penyaring tampilan, berfungsi untuk menyembunyikan elemen di halaman web yang dianggap sebagai gangguan visual, dan tidak dapat diblokir oleh filter berbasis permintaan jaringan.<\/p><p>Memfungsikan fitur ini akan meningkatkan penggunaan memori <i>uBlock₀<\/i>.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Daftar host yang diblokir",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"usang",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Pembaruan terakhir: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"Disebabkan oleh filter berikut",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"tanpa parameter",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"Ditemukan di:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"Permanen",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Ekspor ke penyimpanan awan",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Impor dari penyimpanan awan",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Nama perangkat ini:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Kirim",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Urungkan",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"byte",
+    "description":""
   },
   "dummy":{
     "message":"Entri ini harus menjadi yang terakhir",

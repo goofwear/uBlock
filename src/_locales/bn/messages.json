@@ -33,7 +33,7 @@
   },
   "statsPageName":{
     "message":"uBlock₀ — নেটওয়ার্ক অনুরোধ লগ",
-    "description":"Title for the network request log window"
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"সম্পর্কে",
@@ -73,7 +73,7 @@
   },
   "popupTipLog":{
     "message":"অনুরোধ লগে যান",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
     "message":"এই সাইটের জন্য সব পপআপ অবরোধ টগল করুন",
@@ -90,6 +90,22 @@
   "popupTipNoRemoteFonts":{
     "message":"এই সাইটের রিমোট ফন্টের অবরোধ টগল করুন",
     "description":"English: Toggle the blocking of remote fonts for this site"
+  },
+  "popupTipGlobalRules":{
+    "message":"বৈশ্বিক নিয়ম: এই কলামটি নিয়মের জন্য যা সকল সাইটে প্রয়োগ করা হবে।",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"স্থানীয় নিয়ম: এই কলামটি নিয়মের জন্য যা শুধু বর্তমান সাইটে প্রয়োগ করা হবে।\nস্থানীয় নিয়ম বৈশ্বিক নিয়মকে অগ্রাহ্য করবে।",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"আপনার পরিবর্তনগুলি স্থায়ী করতে ক্লিক করুন।",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"আপনার পরিবর্তনগুলি ফেরত নিতে ক্লিক করুন।",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
     "message":"সব",
@@ -167,6 +183,10 @@
     "message":"আইকনে অবরোধের অনুরোধ সংখ্যা দেখান",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"টুলটিপ নিষ্ক্রিয় করুন",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"উপযুক্ত স্থানে প্রাসঙ্গিক মেনু ব্যবহার করুন",
     "description":"English: Make use of context menu where appropriate"
@@ -174,6 +194,10 @@
   "settingsColorBlindPrompt":{
     "message":"বর্ণান্ধ বন্ধুত্বপূর্ণ",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"ক্লাউড সঞ্চয়ের সমর্থন সক্রিয় করুন",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"আমি একজন উন্নত ব্যবহারকারী (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>পড়া আবশ্যক<\/a>)",
@@ -233,7 +257,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>এই অপশনটি <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">অ্যাডব্লক-প্লাসের সামঞ্জস্যপূর্ণ &ldquo;উপাদান আড়াল করার&rdquo; ফিল্টারকে<\/a> সক্রিয় করবে। এই ফিল্টারগুলি মূলত প্রসাধনী, তাদের একটি ওয়েব পাতায় উপাদান আড়াল করতে প্রয়োজন হয় যাকে চাক্ষুষ উত্পাত বলিয়া গণ্য করা হয়, এবং যাদের নেট অনুরোধ ভিত্তিক ফিল্টারিং ইঞ্জিন দ্বারা অবরুদ্ধ করা যায় না।<\/p><p>এই বৈশিষ্ট্য সক্রিয় করলে uBlock₀-এর মেমরির পদচিহ্ন বৃদ্ধি পাবে।<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"অবরুদ্ধ হোস্টের তালিকা",
@@ -289,7 +313,7 @@
   },
   "3pExternalListObsolete":{
     "message":"পুরোনো",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"সর্বশেষ হালনাগাদ: {{ago}}",
@@ -567,6 +591,10 @@
     "message":"নিম্নলিখিত ফিল্টারের কারণে",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"প্যারামিটার বিহীন",
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
+  },
   "docblockedFoundIn":{
     "message":"যা এতে পাওয়া গেছে:",
     "description":"English: List of filter list names follows"
@@ -590,6 +618,34 @@
   "docblockedDisablePermanent":{
     "message":"স্থায়ীভাবে",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"ক্লাউড সঞ্চয়ে রপ্তানি করুন",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"ক্লাউড সঞ্চয় থেকে আমদানি করুন",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"এই ডিভাইসের নাম:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"জমা দিন",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"প্রত্যাবর্তন",
+    "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"বাইট",
+    "description":""
   },
   "dummy":{
     "message":"This entry must be the last one",
