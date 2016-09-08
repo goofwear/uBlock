@@ -1,7 +1,7 @@
 /*******************************************************************************
 
-    uBlock - a browser extension to block requests.
-    Copyright (C) 2014-2015 Raymond Hill
+    uBlock Origin - a browser extension to block requests.
+    Copyright (C) 2014-2016 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,15 +19,13 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global µBlock, vAPI */
+'use strict';
 
 /******************************************************************************/
 
 // Start isolation from global scope
 
 µBlock.webRequest = (function() {
-
-'use strict';
 
 /******************************************************************************/
 
@@ -38,9 +36,6 @@ var exports = {};
 // Intercept and filter web requests.
 
 var onBeforeRequest = function(details) {
-    //console.debug('µBlock.webRequest/onBeforeRequest(): "%s": %o', details.url, details);
-    //console.debug('µBlock.webRequest/onBeforeRequest(): "type=%s, id=%d, parent id=%d, url=%s', details.type, details.frameId, details.parentFrameId, details.url);
-
     // Special handling for root document.
     // https://github.com/chrisaljoudi/uBlock/issues/1001
     // This must be executed regardless of whether the request is
@@ -48,6 +43,12 @@ var onBeforeRequest = function(details) {
     var requestType = details.type;
     if ( requestType === 'main_frame' ) {
         return onBeforeRootFrameRequest(details);
+    }
+
+    // https://github.com/gorhill/uBlock/issues/870
+    // This work for Chromium 49+.
+    if ( requestType === 'beacon' ) {
+        return onBeforeBeacon(details);
     }
 
     // Special treatment: behind-the-scene requests
@@ -76,15 +77,14 @@ var onBeforeRequest = function(details) {
     // > the outer frame.
     // > (ref: https://developer.chrome.com/extensions/webRequest)
     var isFrame = requestType === 'sub_frame';
-    var frameId = isFrame ? details.parentFrameId : details.frameId;
 
     // https://github.com/chrisaljoudi/uBlock/issues/114
-    var requestContext = pageStore.createContextFromFrameId(frameId);
+    var requestContext = pageStore.createContextFromFrameId(isFrame ? details.parentFrameId : details.frameId);
 
     // Setup context and evaluate
     var requestURL = details.url;
     requestContext.requestURL = requestURL;
-    requestContext.requestHostname = details.hostname;
+    requestContext.requestHostname = µb.URI.hostnameFromURI(requestURL);
     requestContext.requestType = requestType;
 
     var result = pageStore.filterRequest(requestContext);
@@ -107,23 +107,15 @@ var onBeforeRequest = function(details) {
 
     // Not blocked
     if ( µb.isAllowResult(result) ) {
-        //console.debug('traffic.js > onBeforeRequest(): ALLOW "%s" (%o) because "%s"', details.url, details, result);
-
         // https://github.com/chrisaljoudi/uBlock/issues/114
-        frameId = details.frameId;
-        if ( frameId > 0 ) {
-            if ( isFrame  ) {
-                pageStore.setFrame(frameId, requestURL);
-            } else if ( pageStore.getFrame(frameId) === null ) {
-                pageStore.setFrame(frameId, requestURL);
-            }
+        if ( details.parentFrameId !== -1 && isFrame ) {
+            pageStore.setFrame(details.frameId, requestURL);
         }
-
+        requestContext.dispose();
         return;
     }
 
     // Blocked
-    //console.debug('traffic.js > onBeforeRequest(): BLOCK "%s" (%o) because "%s"', details.url, details, result);
 
     // https://github.com/chrisaljoudi/uBlock/issues/905#issuecomment-76543649
     // No point updating the badge if it's not being displayed.
@@ -135,9 +127,22 @@ var onBeforeRequest = function(details) {
     // Redirect blocked request?
     var url = µb.redirectEngine.toURL(requestContext);
     if ( url !== undefined ) {
+        if ( µb.logger.isEnabled() ) {
+            µb.logger.writeOne(
+                tabId,
+                'redirect',
+                'rr:' + µb.redirectEngine.resourceNameRegister,
+                requestType,
+                requestURL,
+                requestContext.rootHostname,
+                requestContext.pageHostname
+            );
+        }
+        requestContext.dispose();
         return { redirectUrl: url };
     }
 
+    requestContext.dispose();
     return { cancel: true };
 };
 
@@ -154,8 +159,9 @@ var onBeforeRootFrameRequest = function(details) {
     // https://github.com/chrisaljoudi/uBlock/issues/1001
     // This must be executed regardless of whether the request is
     // behind-the-scene
-    var requestHostname = details.hostname;
-    var requestDomain = µb.URI.domainFromHostname(requestHostname) || requestHostname;
+    var µburi = µb.URI;
+    var requestHostname = µburi.hostnameFromURI(requestURL);
+    var requestDomain = µburi.domainFromHostname(requestHostname) || requestHostname;
     var context = {
         rootHostname: requestHostname,
         rootDomain: requestDomain,
@@ -163,7 +169,7 @@ var onBeforeRootFrameRequest = function(details) {
         pageDomain: requestDomain,
         requestURL: requestURL,
         requestHostname: requestHostname,
-        requestType: 'other'
+        requestType: 'main_frame'
     };
 
     var result = '';
@@ -190,12 +196,18 @@ var onBeforeRootFrameRequest = function(details) {
     var snfe = µb.staticNetFilteringEngine;
 
     // Check for specific block
-    if ( result === '' && snfe.matchStringExactType(context, requestURL, 'main_frame') !== undefined ) {
+    if (
+        result === '' &&
+        snfe.matchStringExactType(context, requestURL, 'main_frame') !== undefined
+    ) {
         result = snfe.toResultString(true);
     }
 
     // Check for generic block
-    if ( result === '' && snfe.matchString(context) !== undefined ) {
+    if (
+        result === '' &&
+        snfe.matchStringExactType(context, requestURL, 'no_type') !== undefined
+    ) {
         result = snfe.toResultString(true);
         // https://github.com/chrisaljoudi/uBlock/issues/1128
         // Do not block if the match begins after the hostname, except when
@@ -272,11 +284,44 @@ var toBlockDocResult = function(url, hostname, result) {
 
 /******************************************************************************/
 
+// https://github.com/gorhill/uBlock/issues/870
+// Finally, Chromium 49+ gained the ability to report network request of type
+// `beacon`, so now we can block them according to the state of the
+// "Disable hyperlink auditing/beacon" setting.
+
+var onBeforeBeacon = function(details) {
+    var µb = µBlock;
+    var tabId = details.tabId;
+    var pageStore = µb.mustPageStoreFromTabId(tabId);
+    var context = pageStore.createContextFromPage();
+    context.requestURL = details.url;
+    context.requestHostname = µb.URI.hostnameFromURI(details.url);
+    context.requestType = details.type;
+    // "g" in "gb:" stands for "global setting"
+    var result = µb.userSettings.hyperlinkAuditingDisabled ? 'gb:' : '';
+    pageStore.logRequest(context, result);
+    if ( µb.logger.isEnabled() ) {
+        µb.logger.writeOne(
+            tabId,
+            'net',
+            result,
+            details.type,
+            details.url,
+            context.rootHostname,
+            context.rootHostname
+        );
+    }
+    context.dispose();
+    if ( result !== '' ) {
+        return { cancel: true };
+    }
+};
+
+/******************************************************************************/
+
 // Intercept and filter behind-the-scene requests.
 
 var onBeforeBehindTheSceneRequest = function(details) {
-    //console.debug('traffic.js > onBeforeBehindTheSceneRequest(): "%s": %o', details.url, details);
-
     var µb = µBlock;
     var pageStore = µb.pageStoreFromTabId(vAPI.noTabId);
     if ( !pageStore ) {
@@ -284,8 +329,9 @@ var onBeforeBehindTheSceneRequest = function(details) {
     }
 
     var context = pageStore.createContextFromPage();
-    context.requestURL = details.url;
-    context.requestHostname = details.hostname;
+    var requestURL = details.url;
+    context.requestURL = requestURL;
+    context.requestHostname = µb.URI.hostnameFromURI(requestURL);
     context.requestType = details.type;
 
     // Blocking behind-the-scene requests can break a lot of stuff: prevent
@@ -305,27 +351,28 @@ var onBeforeBehindTheSceneRequest = function(details) {
             'net',
             result,
             details.type,
-            details.url,
+            requestURL,
             context.rootHostname,
             context.rootHostname
         );
     }
 
+    context.dispose();
+
     // Not blocked
     if ( µb.isAllowResult(result) ) {
-        //console.debug('traffic.js > onBeforeBehindTheSceneRequest(): ALLOW "%s" (%o) because "%s"', details.url, details, result);
         return;
     }
 
     // Blocked
-    //console.debug('traffic.js > onBeforeBehindTheSceneRequest(): BLOCK "%s" (%o) because "%s"', details.url, details, result);
-
     return { 'cancel': true };
 };
 
 /******************************************************************************/
 
-// To handle `inline-script`.
+// To handle:
+// - inline script tags
+// - media elements larger than n kB
 
 var onHeadersReceived = function(details) {
     // Do not interfere with behind-the-scene requests.
@@ -343,13 +390,17 @@ var onHeadersReceived = function(details) {
     if ( requestType === 'sub_frame' ) {
         return onFrameHeadersReceived(details);
     }
+
+    if ( requestType === 'image' || requestType === 'media' ) {
+        return foilLargeMediaElement(details);
+    }
 };
 
 /******************************************************************************/
 
 var onRootFrameHeadersReceived = function(details) {
-    var µb = µBlock;
-    var tabId = details.tabId;
+    var µb = µBlock,
+        tabId = details.tabId;
 
     µb.tabContextManager.push(tabId, details.url);
 
@@ -360,170 +411,240 @@ var onRootFrameHeadersReceived = function(details) {
     }
     // I can't think of how pageStore could be null at this point.
 
-    var context = pageStore.createContextFromPage();
-    context.requestURL = details.url;
-    context.requestHostname = details.hostname;
-    context.requestType = 'inline-script';
-
-    var result = pageStore.filterRequestNoCache(context);
-
-    pageStore.logRequest(context, result);
-
-    if ( µb.logger.isEnabled() ) {
-        µb.logger.writeOne(
-            tabId,
-            'net',
-            result,
-            'inline-script',
-            details.url,
-            context.rootHostname,
-            context.pageHostname
-        );
-    }
-
-    // Don't block
-    if ( µb.isAllowResult(result) ) {
-        return;
-    }
-
-    µb.updateBadgeAsync(tabId);
-
-    return { 'responseHeaders': foilInlineScripts(details.responseHeaders) };
+    return processCSP(details, pageStore, pageStore.createContextFromPage());
 };
 
 /******************************************************************************/
 
 var onFrameHeadersReceived = function(details) {
-    var µb = µBlock;
-    var tabId = details.tabId;
-
     // Lookup the page store associated with this tab id.
-    var pageStore = µb.pageStoreFromTabId(tabId);
+    var pageStore = µBlock.pageStoreFromTabId(details.tabId);
     if ( !pageStore ) {
         return;
     }
 
     // Frame id of frame request is their own id, while the request is made
     // in the context of the parent.
-    var context = pageStore.createContextFromFrameId(details.parentFrameId);
-    context.requestURL = details.url;
-    context.requestHostname = details.hostname;
+    return processCSP(
+        details,
+        pageStore,
+        pageStore.createContextFromFrameId(details.frameId)
+    );
+};
+
+/******************************************************************************/
+
+var processCSP = function(details, pageStore, context) {
+    var µb = µBlock,
+        tabId = details.tabId,
+        requestURL = details.url,
+        loggerEnabled = µb.logger.isEnabled();
+
+    context.requestURL = requestURL;
+    context.requestHostname = µb.URI.hostnameFromURI(requestURL);
+
     context.requestType = 'inline-script';
+    var inlineScriptResult = pageStore.filterRequestNoCache(context),
+        blockInlineScript = µb.isBlockResult(inlineScriptResult);
 
-    var result = pageStore.filterRequestNoCache(context);
+    context.requestType = 'websocket';
+    µb.staticNetFilteringEngine.matchStringExactType(context, requestURL, 'websocket');
+    var websocketResult = µb.staticNetFilteringEngine.toResultString(loggerEnabled),
+        blockWebsocket = µb.isBlockResult(websocketResult);
 
-    pageStore.logRequest(context, result);
+    var headersChanged = false;
+    if ( blockInlineScript || blockWebsocket ) {
+        headersChanged = foilWithCSP(
+            details.responseHeaders,
+            blockInlineScript,
+            blockWebsocket
+        );
+    }
 
-    if ( µb.logger.isEnabled() ) {
+    if ( loggerEnabled ) {
         µb.logger.writeOne(
             tabId,
             'net',
-            result,
+            inlineScriptResult,
             'inline-script',
-            details.url,
+            requestURL,
             context.rootHostname,
             context.pageHostname
         );
     }
 
-    // Don't block
-    if ( µb.isAllowResult(result) ) {
+    if ( loggerEnabled && blockWebsocket ) {
+        µb.logger.writeOne(
+            tabId,
+            'net',
+            websocketResult,
+            'websocket',
+            requestURL,
+            context.rootHostname,
+            context.pageHostname
+        );
+    }
+
+    context.dispose();
+
+    if ( headersChanged !== true ) {
         return;
     }
 
     µb.updateBadgeAsync(tabId);
 
-    return { 'responseHeaders': foilInlineScripts(details.responseHeaders) };
+    return { 'responseHeaders': details.responseHeaders };
 };
 
 /******************************************************************************/
 
-var foilInlineScripts = function(headers) {
-    // Below is copy-pasta from uMatrix's project.
+// https://github.com/gorhill/uBlock/issues/1163
+// "Block elements by size"
 
-    // If javascript is not allowed, say so through a `Content-Security-Policy`
-    // directive.
-    // We block only inline-script tags, all the external javascript will be
-    // blocked by our request handler.
-
-    // https://github.com/gorhill/uMatrix/issues/129
-    // https://github.com/gorhill/uMatrix/issues/320
-    //   Modernize CSP injection:
-    //   - Do not overwrite blindly possibly already present CSP header
-    //   - Add CSP directive to block inline script ONLY if needed
-    //   - If we end up modifying an existing CSP, strip out `report-uri`
-    //     to prevent spurious CSP violations.
-
-    // Is there a CSP header present?
-    // If not, inject a script-src CSP directive to prevent inline javascript
-    // from executing.
-    var i = headerIndexFromName('content-security-policy', headers);
+var foilLargeMediaElement = function(details) {
+    var µb = µBlock;
+    var tabId = details.tabId;
+    var pageStore = µb.pageStoreFromTabId(tabId);
+    if ( pageStore === null ) {
+        return;
+    }
+    if ( pageStore.getNetFilteringSwitch() !== true ) {
+        return;
+    }
+    if ( Date.now() < pageStore.allowLargeMediaElementsUntil ) {
+        return;
+    }
+    if ( µb.hnSwitches.evaluateZ('no-large-media', pageStore.tabHostname) !== true ) {
+        return;
+    }
+    var i = headerIndexFromName('content-length', details.responseHeaders);
     if ( i === -1 ) {
-        headers.push({
-            'name': 'Content-Security-Policy',
-            'value': "script-src 'unsafe-eval' *"
-        });
-        return headers;
+        return;
+    }
+    var contentLength = parseInt(details.responseHeaders[i].value, 10) || 0;
+    if ( (contentLength >>> 10) < µb.userSettings.largeMediaSize ) {
+        return;
     }
 
-    // A CSP header is already present.
-    // Remove the CSP header, we will re-inject it after processing it.
-    // TODO: We are currently forced to add the CSP header at the end of the
-    //       headers array, because this is what the platform specific code
-    //       expect (Firefox).
-    var csp = headers.splice(i, 1)[0].value.trim();
+    pageStore.logLargeMedia();
 
-    // Is there a script-src directive in the CSP header?
-    // If not, we simply need to append our script-src directive.
-    // https://github.com/gorhill/uMatrix/issues/320
-    //   Since we are modifying an existing CSP header, we need to strip out
-    //   'report-uri' if it is present, to prevent spurious reporting of CSP
-    //   violation, and thus the leakage of information to the remote site.
-    var matches = reScriptsrc.exec(csp);
-    if ( matches === null ) {
-        csp += "; script-src 'unsafe-eval' *";
-        headers.push({
-            'name': 'Content-Security-Policy',
-            'value': csp.replace(reReporturi, '')
-        });
-        return headers;
+    if ( µb.logger.isEnabled() ) {
+        µb.logger.writeOne(
+            tabId,
+            'net',
+            µb.hnSwitches.toResultString(),
+            details.type,
+            details.url,
+            pageStore.tabHostname,
+            pageStore.tabHostname
+        );
     }
 
-    // A `script-src' directive is already present. Extract it.
-    var scriptsrc = matches[0];
-
-    // Is there at least one 'unsafe-inline' or 'nonce-' token in the
-    // script-src?
-    // If not we have no further processing to perform: inline scripts are
-    // already forbidden by the site.
-    if ( reUnsafeinline.test(scriptsrc) === false ) {
-        headers.push({
-            'name': 'Content-Security-Policy',
-            'value': csp
-        });
-        return headers;
-    }
-
-    // There are tokens enabling inline script tags in the script-src
-    // directive, so we have to strip them out.
-    // Strip out whole script-src directive, remove the offending tokens
-    // from it, then append the resulting script-src directive to the original
-    // CSP header.
-    // https://github.com/gorhill/uMatrix/issues/320
-    //   Since we are modifying an existing CSP header, we need to strip out
-    //   'report-uri' if it is present, to prevent spurious reporting of CSP
-    //   violation, and thus the leakage of information to the remote site.
-    csp = csp.replace(reScriptsrc, '') + scriptsrc.replace(reUnsafeinline, '');
-    headers.push({
-        'name': 'Content-Security-Policy',
-        'value': csp.replace(reReporturi, '')
-    });
-    return headers;
+    return { cancel: true };
 };
 
-var reReporturi = /report-uri[^;]*;?\s*/;
-var reScriptsrc = /script-src[^;]*;?\s*/;
-var reUnsafeinline = /'unsafe-inline'\s*|'nonce-[^']+'\s*/g;
+/******************************************************************************/
+
+var foilWithCSP = function(headers, noInlineScript, noWebsocket) {
+    var i = headerIndexFromName('content-security-policy', headers),
+        before = i === -1 ? '' : headers[i].value.trim(),
+        after = before;
+
+    if ( noInlineScript ) {
+        after = foilWithCSPDirective(
+            after,
+            /script-src[^;]*;?\s*/,
+            "script-src 'unsafe-eval' *",
+            /'unsafe-inline'\s*|'nonce-[^']+'\s*/g
+        );
+    }
+
+    if ( noWebsocket ) {
+        after = foilWithCSPDirective(
+            after,
+            /connect-src[^;]*;?\s*/,
+            'connect-src http:',
+            /wss?:[^\s]*\s*/g
+        );
+    }
+
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=513860
+    //   Bad Chromium bug: web pages can work around CSP directives by
+    //   creating data:- or blob:-based URI. So if we must restrict using CSP,
+    //   we have no choice but to also prevent the creation of nested browsing
+    //   contexts based on data:- or blob:-based URIs.
+    if ( vAPI.chrome && (noInlineScript || noWebsocket) ) {
+        // https://w3c.github.io/webappsec-csp/#directive-frame-src
+        after = foilWithCSPDirective(
+            after,
+            /frame-src[^;]*;?\s*/,
+            'frame-src http:',
+            /data:[^\s]*\s*|blob:[^\s]*\s*/g
+        );
+    }
+
+    var changed = after !== before;
+    if ( changed ) {
+        if ( i !== -1 ) {
+            headers.splice(i, 1);
+        }
+        headers.push({ name: 'Content-Security-Policy', value: after });
+    }
+
+    return changed;
+};
+
+/******************************************************************************/
+
+// Past issues to keep in mind:
+// - https://github.com/gorhill/uMatrix/issues/129
+// - https://github.com/gorhill/uMatrix/issues/320
+// - https://github.com/gorhill/uBlock/issues/1909
+
+var foilWithCSPDirective = function(csp, toExtract, toAdd, toRemove) {
+    // Set
+    if ( csp === '' ) {
+        return toAdd;
+    }
+
+    var matches = toExtract.exec(csp);
+
+    // Add
+    if ( matches === null ) {
+        if ( csp.slice(-1) !== ';' ) {
+            csp += ';';
+        }
+        csp += ' ' + toAdd;
+        return csp.replace(reReportDirective, '');
+    }
+
+    var directive = matches[0];
+
+    // No change
+    if ( toRemove.test(directive) === false ) {
+        return csp;
+    }
+
+    // Remove
+    csp = csp.replace(toExtract, '').trim();
+    if ( csp.slice(-1) !== ';' ) {
+        csp += ';';
+    }
+    directive = directive.replace(toRemove, '').trim();
+
+    // Check for empty directive after removal
+    matches = reEmptyDirective.exec(directive);
+    if ( matches ) {
+        directive = matches[1] + " 'none';";
+    }
+
+    csp += ' ' + directive;
+    return csp.replace(reReportDirective, '');
+};
+
+// https://w3c.github.io/webappsec-csp/#directives-reporting
+var reReportDirective = /report-(?:to|uri)[^;]*;?\s*/;
+var reEmptyDirective = /^([a-z-]+)\s*;/;
 
 /******************************************************************************/
 
@@ -556,8 +677,10 @@ vAPI.net.onHeadersReceived = {
         'https://*/*'
     ],
     types: [
-        "main_frame",
-        "sub_frame"
+        'main_frame',
+        'sub_frame',
+        'image',
+        'media'
     ],
     extra: [ 'blocking', 'responseHeaders' ],
     callback: onHeadersReceived

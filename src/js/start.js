@@ -1,7 +1,7 @@
 /*******************************************************************************
 
-    uBlock - a browser extension to block requests.
-    Copyright (C) 2014-2015 Raymond Hill
+    uBlock Origin - a browser extension to block requests.
+    Copyright (C) 2014-2016 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,15 +19,15 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global publicSuffixList, vAPI, µBlock */
+/* global publicSuffixList */
+
+'use strict';
 
 /******************************************************************************/
 
 // Load all: executed once.
 
 µBlock.restart = (function() {
-
-'use strict';
 
 //quickProfiler.start('start.js');
 
@@ -41,6 +41,7 @@ vAPI.app.onShutdown = function() {
     µb.staticFilteringReverseLookup.shutdown();
     µb.assetUpdater.shutdown();
     µb.staticNetFilteringEngine.reset();
+    µb.cosmeticFilteringEngine.reset();
     µb.sessionFirewall.reset();
     µb.permanentFirewall.reset();
     µb.permanentFirewall.reset();
@@ -76,6 +77,8 @@ var onAllReady = function() {
     //quickProfiler.stop(0);
 
     vAPI.onLoadAllCompleted();
+    µb.contextMenu.update(null);
+    µb.firstInstall = false;
 };
 
 /******************************************************************************/
@@ -163,11 +166,6 @@ var onUserSettingsReady = function(fetched) {
     µb.assets.autoUpdate = userSettings.autoUpdate;
     µb.assets.autoUpdateDelay = µb.updateAssetsEvery;
 
-    // https://github.com/chrisaljoudi/uBlock/issues/540
-    // Disabling local mirroring for the time being
-    userSettings.experimentalEnabled = false;
-
-    µb.contextMenu.toggle(userSettings.contextMenuEnabled);
     vAPI.browserSettings.set({
         'hyperlinkAuditing': !userSettings.hyperlinkAuditingDisabled,
         'prefetching': !userSettings.prefetchingDisabled,
@@ -179,6 +177,13 @@ var onUserSettingsReady = function(fetched) {
     µb.permanentURLFiltering.fromString(fetched.urlFilteringString);
     µb.sessionURLFiltering.assign(µb.permanentURLFiltering);
     µb.hnSwitches.fromString(fetched.hostnameSwitchesString);
+
+    // https://github.com/gorhill/uBlock/issues/1892
+    // For first installation on a battery-powered device, disable generic
+    // cosmetic filtering.
+    if ( µb.firstInstall && vAPI.battery ) {
+        userSettings.ignoreGenericCosmeticFilters = true;
+    }
 
     // Remove obsolete setting
     delete userSettings.logRequests;
@@ -208,6 +213,9 @@ var onSystemSettingsReady = function(fetched) {
 /******************************************************************************/
 
 var onFirstFetchReady = function(fetched) {
+    // https://github.com/gorhill/uBlock/issues/747
+    µb.firstInstall = fetched.version === '0.0.0.0';
+
     // Order is important -- do not change:
     onSystemSettingsReady(fetched);
     fromFetch(µb.localSettings, fetched);
@@ -250,34 +258,35 @@ var fromFetch = function(to, fetched) {
 
 /******************************************************************************/
 
-return function() {
+var onAdminSettingsRestored = function() {
+    // Forbid remote fetching of assets
+    µb.assets.remoteFetchBarrier += 1;
 
-    var onAdminSettingsRestored = function() {
-        // Forbid remote fetching of assets
-        µb.assets.remoteFetchBarrier += 1;
-
-        var fetchableProps = {
-            'compiledMagic': '',
-            'dynamicFilteringString': 'behind-the-scene * 3p noop\nbehind-the-scene * 3p-frame noop',
-            'urlFilteringString': '',
-            'hostnameSwitchesString': '',
-            'lastRestoreFile': '',
-            'lastRestoreTime': 0,
-            'lastBackupFile': '',
-            'lastBackupTime': 0,
-            'netWhitelist': '',
-            'selfie': null,
-            'selfieMagic': '',
-            'version': '0.0.0.0'
-        };
-
-        toFetch(µb.localSettings, fetchableProps);
-        toFetch(µb.userSettings, fetchableProps);
-        toFetch(µb.restoreBackupSettings, fetchableProps);
-
-        vAPI.storage.get(fetchableProps, onFirstFetchReady);
+    var fetchableProps = {
+        'compiledMagic': '',
+        'dynamicFilteringString': 'behind-the-scene * 3p noop\nbehind-the-scene * 3p-frame noop',
+        'urlFilteringString': '',
+        'hostnameSwitchesString': '',
+        'lastRestoreFile': '',
+        'lastRestoreTime': 0,
+        'lastBackupFile': '',
+        'lastBackupTime': 0,
+        'netWhitelist': '',
+        'selfie': null,
+        'selfieMagic': '',
+        'version': '0.0.0.0'
     };
 
+    toFetch(µb.localSettings, fetchableProps);
+    toFetch(µb.userSettings, fetchableProps);
+    toFetch(µb.restoreBackupSettings, fetchableProps);
+
+    vAPI.storage.get(fetchableProps, onFirstFetchReady);
+};
+
+/******************************************************************************/
+
+return function() {
     // https://github.com/gorhill/uBlock/issues/531
     µb.restoreAdminSettings(onAdminSettingsRestored);
 };

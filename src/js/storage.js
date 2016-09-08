@@ -180,11 +180,11 @@
         var snfe = µb.staticNetFilteringEngine;
         var cfe = µb.cosmeticFilteringEngine;
         var acceptedCount = snfe.acceptedCount + cfe.acceptedCount;
-        var duplicateCount = snfe.duplicateCount + cfe.duplicateCount;
-        µb.applyCompiledFilters(compiledFilters);
+        var discardedCount = snfe.discardedCount + cfe.discardedCount;
+        µb.applyCompiledFilters(compiledFilters, true);
         var entry = µb.remoteBlacklists[µb.userFiltersPath];
         var deltaEntryCount = snfe.acceptedCount + cfe.acceptedCount - acceptedCount;
-        var deltaEntryUsedCount = deltaEntryCount - (snfe.duplicateCount + cfe.duplicateCount - duplicateCount);
+        var deltaEntryUsedCount = deltaEntryCount - (snfe.discardedCount + cfe.discardedCount - discardedCount);
         entry.entryCount += deltaEntryCount;
         entry.entryUsedCount += deltaEntryUsedCount;
         vAPI.storage.set({ 'remoteBlacklists': µb.remoteBlacklists });
@@ -269,6 +269,12 @@
                 availableEntry.title = storedEntry.title;
             }
         }
+
+        // https://github.com/gorhill/uBlock/issues/747
+        if ( µb.firstInstall ) {
+            µb.autoSelectFilterLists(availableLists);
+        }
+
         callback(availableLists);
     };
 
@@ -338,6 +344,25 @@
 
 /******************************************************************************/
 
+µBlock.autoSelectFilterLists = function(lists) {
+    var lang = self.navigator.language.slice(0, 2),
+        list;
+    for ( var path in lists ) {
+        if ( lists.hasOwnProperty(path) === false ) {
+            continue;
+        }
+        list = lists[path];
+        if ( list.off !== true ) {
+            continue;
+        }
+        if ( list.lang === lang ) {
+            list.off = false;
+        }
+    }
+};
+
+/******************************************************************************/
+
 µBlock.createShortUniqueId = function(path) {
     var md5 = YaMD5.hashStr(path);
     return md5.slice(0, 4) + md5.slice(-4);
@@ -347,7 +372,15 @@
 
 /******************************************************************************/
 
+// This is used to be re-entrancy resistant.
+µBlock.loadingFilterLists = false;
+
 µBlock.loadFilterLists = function(callback) {
+    // Callers are expected to check this first.
+    if ( this.loadingFilterLists ) {
+        return;
+    }
+    this.loadingFilterLists = true;
 
     //quickProfiler.start('µBlock.loadFilterLists()');
 
@@ -377,18 +410,19 @@
         callback();
 
         µb.selfieManager.create();
+        µb.loadingFilterLists = false;
     };
 
     var applyCompiledFilters = function(path, compiled) {
         var snfe = µb.staticNetFilteringEngine;
         var cfe = µb.cosmeticFilteringEngine;
         var acceptedCount = snfe.acceptedCount + cfe.acceptedCount;
-        var duplicateCount = snfe.duplicateCount + cfe.duplicateCount;
-        µb.applyCompiledFilters(compiled);
+        var discardedCount = snfe.discardedCount + cfe.discardedCount;
+        µb.applyCompiledFilters(compiled, path === µb.userFiltersPath);
         if ( µb.remoteBlacklists.hasOwnProperty(path) ) {
             var entry = µb.remoteBlacklists[path];
             entry.entryCount = snfe.acceptedCount + cfe.acceptedCount - acceptedCount;
-            entry.entryUsedCount = entry.entryCount - (snfe.duplicateCount + cfe.duplicateCount - duplicateCount);
+            entry.entryUsedCount = entry.entryCount - (snfe.discardedCount + cfe.discardedCount - discardedCount);
         }
     };
 
@@ -425,8 +459,7 @@
         }
         filterlistsCount = toLoad.length;
         if ( filterlistsCount === 0 ) {
-            onDone();
-            return;
+            return onDone();
         }
 
         var i = toLoad.length;
@@ -594,15 +627,19 @@
 
 /******************************************************************************/
 
-µBlock.applyCompiledFilters = function(rawText) {
-    var skipCosmetic = !this.userSettings.parseAllABPHideFilters;
-    var staticNetFilteringEngine = this.staticNetFilteringEngine;
-    var cosmeticFilteringEngine = this.cosmeticFilteringEngine;
-    var lineBeg = 0;
-    var rawEnd = rawText.length;
-    while ( lineBeg < rawEnd ) {
-        lineBeg = cosmeticFilteringEngine.fromCompiledContent(rawText, lineBeg, skipCosmetic);
-        lineBeg = staticNetFilteringEngine.fromCompiledContent(rawText, lineBeg);
+// https://github.com/gorhill/uBlock/issues/1395
+//   Added `firstparty` argument: to avoid discarding cosmetic filters when
+//   applying 1st-party filters.
+
+µBlock.applyCompiledFilters = function(rawText, firstparty) {
+    var skipCosmetic = !firstparty && !this.userSettings.parseAllABPHideFilters,
+        skipGenericCosmetic = this.userSettings.ignoreGenericCosmeticFilters,
+        staticNetFilteringEngine = this.staticNetFilteringEngine,
+        cosmeticFilteringEngine = this.cosmeticFilteringEngine,
+        lineIter = new this.LineIterator(rawText);
+    while ( lineIter.eot() === false ) {
+        cosmeticFilteringEngine.fromCompiledContent(lineIter, skipGenericCosmetic, skipCosmetic);
+        staticNetFilteringEngine.fromCompiledContent(lineIter);
     }
 };
 
@@ -644,6 +681,8 @@
     var µb = this;
 
     // We are just reloading the filter lists: we do not want assets to update.
+    // TODO: probably not needed anymore, since filter lists are now always
+    // loaded without update => see `µb.assets.remoteFetchBarrier`.
     this.assets.autoUpdate = false;
 
     var onFiltersReady = function() {
@@ -669,7 +708,7 @@
         callback();
     };
 
-    this.assets.get('assets/ublock/redirect-resources.txt', onResourcesLoaded);
+    this.assets.get('assets/ublock/resources.txt', onResourcesLoaded);
 };
 
 /******************************************************************************/
@@ -829,7 +868,7 @@
         }
 
         if ( typeof data.userFilters === 'string' ) {
-            µb.assets.put('assets/user/filters.txt', data.userFilters);
+            µb.assets.put(µb.userFiltersPath, data.userFilters);
         }
 
         callback();
@@ -854,7 +893,7 @@
             assets[location] = true;
         }
         assets[µb.pslPath] = true;
-        assets['assets/ublock/redirect-resources.txt'] = true;
+        assets['assets/ublock/resources.txt'] = true;
         callback(assets);
     };
 

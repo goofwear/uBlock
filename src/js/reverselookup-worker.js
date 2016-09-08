@@ -41,7 +41,6 @@ var reSpecialChars = /[\*\^\t\v\n]/;
 
 var fromNetFilter = function(details) {
     var lists = [];
-
     var compiledFilter = details.compiledFilter;
     var entry, content, pos, c;
     for ( var path in listEntries ) {
@@ -50,20 +49,27 @@ var fromNetFilter = function(details) {
             continue;
         }
         content = entry.content;
-        pos = content.indexOf(compiledFilter);
-        if ( pos === -1 ) {
-            continue;
+        pos = 0;
+        for (;;) {
+            pos = content.indexOf(compiledFilter, pos);
+            if ( pos === -1 ) {
+                break;
+            }
+            // We need an exact match.
+            // https://github.com/gorhill/uBlock/issues/1392
+            // https://github.com/gorhill/uBlock/issues/835
+            if ( pos === 0 || reSpecialChars.test(content.charAt(pos - 1)) ) {
+                c = content.charAt(pos + compiledFilter.length);
+                if ( c === '' || reSpecialChars.test(c) ) {
+                    lists.push({
+                        title: entry.title,
+                        supportURL: entry.supportURL
+                    });
+                    break;
+                }
+            }
+            pos += compiledFilter.length;
         }
-        // https://github.com/gorhill/uBlock/issues/835
-        // We need an exact match.
-        c = content.charAt(pos + compiledFilter.length);
-        if ( c !== '' && reSpecialChars.test(c) === false ) {
-            continue;
-        }
-        lists.push({
-            title: entry.title,
-            supportURL: entry.supportURL
-        });
     }
 
     var response = {};
@@ -109,45 +115,35 @@ var fromCosmeticFilter = function(details) {
     // First step: assuming the filter is generic, find out its compiled
     // representation.
     // Reference: FilterContainer.compileGenericSelector().
-    var reStr = '';
+    var reStr = [];
     var matches = rePlainSelector.exec(filter);
     if ( matches ) {
         if ( matches[0] === filter ) {          // simple CSS selector
-            reStr = reEscape('c\vlg\v' + filter);
+            reStr.push('c', 'lg', reEscape(filter));
         } else {                                // complex CSS selector
-            reStr = reEscape('c\vlg+\v' + matches[0] + '\v' + filter);
+            reStr.push('c', reEscape('lg+'), reEscape(matches[0]), reEscape(filter));
         }
     } else if ( reHighLow.test(filter) ) {      // [alt] or [title]
-        reStr = reEscape('c\vhlg0\v' + filter);
+        reStr.push('c', 'hlg0', reEscape(filter));
     } else if ( reHighMedium.test(filter) ) {   // [href^="..."]
-        reStr = reEscape('c\vhmg0\v') + '[a-z.-]+' + reEscape('\v') + '[a-z]*' + reEscape(filter);
-    } else {                                    // all else
-        reStr = reEscape('c\vhhg0\v' + filter);
+        reStr.push('c', 'hmg0', '[^"]{8}', '[a-z]*' + reEscape(filter));
+    } else if ( filter.indexOf(' ') === -1 ) {  // high-high-simple selector
+        reStr.push('c', 'hhsg0', reEscape(filter));
+    } else {                                    // high-high-complex selector
+        reStr.push('c', 'hhcg0', reEscape(filter));
     }
-    candidates[details.rawFilter] = new RegExp(reStr + '(?:\\n|$)');
+    candidates[details.rawFilter] = new RegExp(reStr.join('\\v') + '(?:\\n|$)');
 
     // Second step: find hostname-based versions.
     // Reference: FilterContainer.compileHostnameSelector().
     var pos;
-    var domain = details.domain;
     var hostname = details.hostname;
-
     if ( hostname !== '' ) {
         for ( ;; ) {
             candidates[hostname + '##' + filter] = new RegExp(
-                reEscape('c\vh\v') +
-                '\\w+' +
-                reEscape('\v' + hostname + '\v' + filter) +
+                ['c', 'h', '\\w+', reEscape(hostname), reEscape(filter)].join('\\v') +
                 '(?:\\n|$)'
             );
-            // If there is no valid domain, there won't be any other
-            // version of this hostname-based filter.
-            if ( domain === '' ) {
-                break;
-            }
-            if ( hostname === domain ) {
-                break;
-            }
             pos = hostname.indexOf('.');
             if ( pos === -1 ) {
                 break;
@@ -158,11 +154,12 @@ var fromCosmeticFilter = function(details) {
 
     // Last step: find entity-based versions.
     // Reference: FilterContainer.compileEntitySelector().
+    var domain = details.domain;
     pos = domain.indexOf('.');
     if ( pos !== -1 ) {
         var entity = domain.slice(0, pos);
         candidates[entity + '.*##' + filter] = new RegExp(
-            reEscape('c\ve\v' + entity + '\v' + filter) +
+            ['c', 'e', reEscape(entity), reEscape(filter)].join('\\v') +
             '(?:\\n|$)'
         );
     }

@@ -1,7 +1,7 @@
 /*******************************************************************************
 
-    µBlock - a browser extension to block requests.
-    Copyright (C) 2014 The µBlock authors
+    uBlock Origin - a browser extension to block requests.
+    Copyright (C) 2014-2016 The uBlock Origin authors
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global self, µBlock */
-
 // For background page
 
 /******************************************************************************/
@@ -37,6 +35,7 @@ var chrome = self.chrome;
 var manifest = chrome.runtime.getManifest();
 
 vAPI.chrome = true;
+vAPI.cantWebsocket = true;
 
 var noopFunc = function(){};
 
@@ -74,13 +73,89 @@ vAPI.storage = chrome.storage.local;
 // API threw an exception.
 
 vAPI.browserSettings = {
-    set: function(details) {
-        // https://github.com/gorhill/uBlock/issues/875
-        // Must not leave `lastError` unchecked.
-        var callback = function() {
-            void chrome.runtime.lastError;
-        };
+    webRTCSupported: undefined,
 
+    // https://github.com/gorhill/uBlock/issues/875
+    // Must not leave `lastError` unchecked.
+    noopCallback: function() {
+        void chrome.runtime.lastError;
+    },
+
+    // https://github.com/gorhill/uBlock/issues/533
+    // We must first check wether this Chromium-based browser was compiled
+    // with WebRTC support. To do this, we use an iframe, this way the
+    // empty RTCPeerConnection object we create to test for support will
+    // be properly garbage collected. This prevents issues such as
+    // a computer unable to enter into sleep mode, as reported in the
+    // Chrome store:
+    // https://github.com/gorhill/uBlock/issues/533#issuecomment-167931681
+    setWebrtcIPAddress: function(setting) {
+        // We don't know yet whether this browser supports WebRTC: find out.
+        if ( this.webRTCSupported === undefined ) {
+            this.webRTCSupported = { setting: setting };
+            var iframe = document.createElement('iframe');
+            var me = this;
+            var messageHandler = function(ev) {
+                if ( ev.origin !== self.location.origin ) {
+                    return;
+                }
+                window.removeEventListener('message', messageHandler);
+                var setting = me.webRTCSupported.setting;
+                me.webRTCSupported = ev.data === 'webRTCSupported';
+                me.setWebrtcIPAddress(setting);
+                iframe.parentNode.removeChild(iframe);
+                iframe = null;
+            };
+            window.addEventListener('message', messageHandler);
+            iframe.src = 'is-webrtc-supported.html';
+            document.body.appendChild(iframe);
+            return;
+        }
+
+        // We are waiting for a response from our iframe. This makes the code
+        // safe to re-entrancy.
+        if ( typeof this.webRTCSupported === 'object' ) {
+            this.webRTCSupported.setting = setting;
+            return;
+        }
+
+        // https://github.com/gorhill/uBlock/issues/533
+        // WebRTC not supported: `webRTCMultipleRoutesEnabled` can NOT be
+        // safely accessed. Accessing the property will cause full browser
+        // crash.
+        if ( this.webRTCSupported !== true ) {
+            return;
+        }
+
+        var cp = chrome.privacy, cpi = cp.IPHandlingPolicy, cpn = cp.network;
+
+        // Older version of Chromium do not support this setting, and is
+        // marked as "deprecated" since Chromium 48.
+        if ( typeof cpn.webRTCMultipleRoutesEnabled === 'object' ) {
+            try {
+                cpn.webRTCMultipleRoutesEnabled.set({
+                    value: !!setting,
+                    scope: 'regular'
+                }, this.noopCallback);
+            } catch(ex) {
+                console.error(ex);
+            }
+        }
+
+        // This setting became available in Chromium 48.
+        if ( typeof cpn.webRTCIPHandlingPolicy === 'object' ) {
+            try {
+                cpn.webRTCIPHandlingPolicy.set({
+                    value: !!setting ? cpi.DEFAULT : cpi.DEFAULT_PUBLIC_INTERFACE_ONLY,
+                    scope: 'regular'
+                }, this.noopCallback);
+            } catch(ex) {
+                console.error(ex);
+            }
+        }
+    },
+
+    set: function(details) {
         for ( var setting in details ) {
             if ( details.hasOwnProperty(setting) === false ) {
                 continue;
@@ -91,7 +166,7 @@ vAPI.browserSettings = {
                     chrome.privacy.network.networkPredictionEnabled.set({
                         value: !!details[setting],
                         scope: 'regular'
-                    }, callback);
+                    }, this.noopCallback);
                 } catch(ex) {
                     console.error(ex);
                 }
@@ -102,43 +177,14 @@ vAPI.browserSettings = {
                     chrome.privacy.websites.hyperlinkAuditingEnabled.set({
                         value: !!details[setting],
                         scope: 'regular'
-                    }, callback);
+                    }, this.noopCallback);
                 } catch(ex) {
                     console.error(ex);
                 }
                 break;
 
             case 'webrtcIPAddress':
-                // https://github.com/gorhill/uBlock/issues/533#issuecomment-164292868
-                // If WebRTC is supported, there won't be an exception if we
-                // try to instanciate a peer connection object.
-                var pc = null;
-                try {
-                    var PC = self.RTCPeerConnection || self.webkitRTCPeerConnection;
-                    if ( PC ) {
-                        pc = new PC(null);
-                    }
-                } catch (ex) {
-                    console.error(ex);
-                }
-                if ( pc === null ) {
-                    break;
-                }
-                pc.close();
-
-                // https://github.com/gorhill/uBlock/issues/533
-                // If we reach this point, the property
-                // `webRTCMultipleRoutesEnabled` can be safely accessed.
-                if ( typeof chrome.privacy.network.webRTCMultipleRoutesEnabled === 'object' ) {
-                    try {
-                        chrome.privacy.network.webRTCMultipleRoutesEnabled.set({
-                            value: !!details[setting],
-                            scope: 'regular'
-                        }, callback);
-                    } catch(ex) {
-                        console.error(ex);
-                    }
-                }
+                this.setWebrtcIPAddress(details[setting]);
                 break;
 
             default:
@@ -211,10 +257,6 @@ vAPI.tabs.registerListeners = function() {
         }
     };
 
-    var onUpdated = function(tabId, changeInfo, tab) {
-        onUpdatedClient(tabId, changeInfo, tab);
-    };
-
     var onCommitted = function(details) {
         if ( details.frameId !== 0 ) {
             return;
@@ -222,9 +264,18 @@ vAPI.tabs.registerListeners = function() {
         onNavigationClient(details);
     };
 
-    chrome.webNavigation.onCreatedNavigationTarget.addListener(onCreatedNavigationTarget);
+    var onActivated = function(details) {
+        vAPI.contextMenu.onMustUpdate(details.tabId);
+    };
+
+    var onUpdated = function(tabId, changeInfo, tab) {
+        onUpdatedClient(tabId, changeInfo, tab);
+    };
+
     chrome.webNavigation.onBeforeNavigate.addListener(onBeforeNavigate);
     chrome.webNavigation.onCommitted.addListener(onCommitted);
+    chrome.webNavigation.onCreatedNavigationTarget.addListener(onCreatedNavigationTarget);
+    chrome.tabs.onActivated.addListener(onActivated);
     chrome.tabs.onUpdated.addListener(onUpdated);
 
     if ( typeof this.onClosed === 'function' ) {
@@ -257,9 +308,7 @@ vAPI.tabs.get = function(tabId, callback) {
 
     var onTabReceived = function(tabs) {
         // https://code.google.com/p/chromium/issues/detail?id=410868#c8
-        if ( chrome.runtime.lastError ) {
-            /* noop */
-        }
+        void chrome.runtime.lastError;
         callback(tabs[0]);
     };
     chrome.tabs.query({ active: true, currentWindow: true }, onTabReceived);
@@ -519,6 +568,7 @@ vAPI.setIcon = function(tabId, iconStatus, badge) {
         { '19': 'img/browsericons/icon19-off.png', '38': 'img/browsericons/icon38-off.png' };
 
     chrome.browserAction.setIcon({ tabId: tabId, path: iconPaths }, onIconReady);
+    vAPI.contextMenu.onMustUpdate(tabId);
 };
 
 /******************************************************************************/
@@ -750,41 +800,44 @@ vAPI.net.registerListeners = function() {
     var µb = µBlock;
     var µburi = µb.URI;
 
-    var normalizeRequestDetails = function(details) {
-        µburi.set(details.url);
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=410382
+    // Between Chromium 38-48, plug-ins' network requests were reported as
+    // type "other" instead of "object".
+    var is_v38_48 = /\bChrom[a-z]+\/(?:3[89]|4[0-8])\.[\d.]+\b/.test(navigator.userAgent);
 
-        details.tabId = details.tabId.toString();
-        details.hostname = µburi.hostnameFromURI(details.url);
+    // Chromium-based browsers understand only these network request types.
+    var validTypes = {
+        'main_frame': true,
+        'sub_frame': true,
+        'stylesheet': true,
+        'script': true,
+        'image': true,
+        'object': true,
+        'xmlhttprequest': true,
+        'other': true
+    };
 
-        // The rest of the function code is to normalize type
-        if ( details.type !== 'other' ) {
-            return;
+    var denormalizeTypes = function(aa) {
+        if ( aa.length === 0 ) {
+            return Object.keys(validTypes);
         }
-
-        var tail = µburi.path.slice(-6);
-        var pos = tail.lastIndexOf('.');
-
-        // https://github.com/chrisaljoudi/uBlock/issues/862
-        // If no transposition possible, transpose to `object` as per
-        // Chromium bug 410382 (see below)
-        if ( pos === -1 ) {
-            details.type = 'object';
-            return;
+        var out = [];
+        var i = aa.length,
+            type,
+            needOther = true;
+        while ( i-- ) {
+            type = aa[i];
+            if ( validTypes.hasOwnProperty(type) ) {
+                out.push(type);
+            }
+            if ( type === 'other' ) {
+                needOther = false;
+            }
         }
-
-        var ext = tail.slice(pos) + '.';
-        if ( '.eot.ttf.otf.svg.woff.woff2.'.indexOf(ext) !== -1 ) {
-            details.type = 'font';
-            return;
+        if ( needOther ) {
+            out.push('other');
         }
-        // Still need this because often behind-the-scene requests are wrongly
-        // categorized as 'other'
-        if ( '.ico.png.gif.jpg.jpeg.webp.'.indexOf(ext) !== -1 ) {
-            details.type = 'image';
-            return;
-        }
-        // https://code.google.com/p/chromium/issues/detail?id=410382
-        details.type = 'object';
+        return out;
     };
 
     var headerValue = function(headers, name) {
@@ -797,21 +850,107 @@ vAPI.net.registerListeners = function() {
         return '';
     };
 
+    var normalizeRequestDetails = function(details) {
+        details.tabId = details.tabId.toString();
+
+        // https://github.com/gorhill/uBlock/issues/1493
+        // Chromium 49+ support a new request type: `ping`, which is fired as
+        // a result of using `navigator.sendBeacon`.
+        if ( details.type === 'ping' ) {
+            details.type = 'beacon';
+            return;
+        }
+
+        // The rest of the function code is to normalize type
+        if ( details.type !== 'other' ) {
+            return;
+        }
+
+        var path = µburi.pathFromURI(details.url);
+        var pos = path.indexOf('.', path.length - 6);
+
+        // https://github.com/chrisaljoudi/uBlock/issues/862
+        // If no transposition possible, transpose to `object` as per
+        // Chromium bug 410382 (see below)
+        if ( pos !== -1 ) {
+            var needle = path.slice(pos) + '.';
+            if ( '.eot.ttf.otf.svg.woff.woff2.'.indexOf(needle) !== -1 ) {
+                details.type = 'font';
+                return;
+            }
+
+            if ( '.mp3.mp4.webm.'.indexOf(needle) !== -1 ) {
+                details.type = 'media';
+                return;
+            }
+
+            // Still need this because often behind-the-scene requests are wrongly
+            // categorized as 'other'
+            if ( '.ico.png.gif.jpg.jpeg.webp.'.indexOf(needle) !== -1 ) {
+                details.type = 'image';
+                return;
+            }
+        }
+
+        // Try to extract type from response headers if present.
+        if ( details.responseHeaders ) {
+            var contentType = headerValue(details.responseHeaders, 'content-type');
+            if ( contentType.startsWith('font/') ) {
+                details.type = 'font';
+                return;
+            }
+            if ( contentType.startsWith('image/') ) {
+                details.type = 'image';
+                return;
+            }
+            if ( contentType.startsWith('audio/') || contentType.startsWith('video/') ) {
+                details.type = 'media';
+                return;
+            }
+        }
+
+        // https://code.google.com/p/chromium/issues/detail?id=410382
+        if ( is_v38_48 ) {
+            details.type = 'object';
+        }
+    };
+
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=129353
+    // https://github.com/gorhill/uBlock/issues/1497
+    // Expose websocket-based network requests to uBO's filtering engine,
+    // logger, etc.
+    // Counterpart of following block of code is found in "vapi-client.js" --
+    // search for "https://github.com/gorhill/uBlock/issues/1497".
+    var onBeforeWebsocketRequest = function(details) {
+        details.type = 'websocket';
+        var matches = /url=([^&]+)/.exec(details.url);
+        details.url = decodeURIComponent(matches[1]);
+        var r = onBeforeRequestClient(details);
+        // Blocked?
+        if ( r && r.cancel ) {
+            return r;
+        }
+        // Returning a 1x1 transparent pixel means "not blocked".
+        return { redirectUrl: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==' };
+    };
+
     var onBeforeRequestClient = this.onBeforeRequest.callback;
     var onBeforeRequest = function(details) {
+        // https://github.com/gorhill/uBlock/issues/1497
+        if (
+            details.type === 'image' &&
+            details.url.endsWith('ubofix=f41665f3028c7fd10eecf573336216d3')
+        ) {
+            return onBeforeWebsocketRequest(details);
+        }
+
         normalizeRequestDetails(details);
         return onBeforeRequestClient(details);
     };
 
     var onHeadersReceivedClient = this.onHeadersReceived.callback;
     var onHeadersReceivedClientTypes = this.onHeadersReceived.types.slice(0);
-    var onHeadersReceivedTypes = onHeadersReceivedClientTypes.slice(0);
-    if (
-        onHeadersReceivedTypes.length !== 0 &&
-        onHeadersReceivedTypes.indexOf('other') === -1
-    ) {
-        onHeadersReceivedTypes.push('other');
-    }
+    var onHeadersReceivedTypes = denormalizeTypes(onHeadersReceivedClientTypes);
     var onHeadersReceived = function(details) {
         normalizeRequestDetails(details);
         // Hack to work around Chromium API limitations, where requests of
@@ -823,20 +962,17 @@ vAPI.net.registerListeners = function() {
         // `other` always becomes `object` when it can't be normalized into
         // something else. Test case for "unfriendly" font URLs:
         //   https://www.google.com/fonts
-        if ( details.type === 'object' ) {
-            if ( headerValue(details.responseHeaders, 'content-type').startsWith('font/') ) {
-                details.type = 'font';
-                var r = onBeforeRequestClient(details);
-                if ( typeof r === 'object' && r.cancel === true ) {
-                    return { cancel: true };
-                }
+        if ( details.type === 'font' ) {
+            var r = onBeforeRequestClient(details);
+            if ( typeof r === 'object' && r.cancel === true ) {
+                return { cancel: true };
             }
-            if (
-                onHeadersReceivedClientTypes.length !== 0 &&
-                onHeadersReceivedClientTypes.indexOf(details.type) === -1
-            ) {
-                return;
-            }
+        }
+        if (
+            onHeadersReceivedClientTypes.length !== 0 &&
+            onHeadersReceivedClientTypes.indexOf(details.type) === -1
+        ) {
+            return;
         }
         return onHeadersReceivedClient(details);
     };
@@ -887,15 +1023,46 @@ vAPI.net.registerListeners = function() {
 /******************************************************************************/
 
 vAPI.contextMenu = {
-    create: function(details, callback) {
-        this.menuId = details.id;
-        this.callback = callback;
-        chrome.contextMenus.create(details);
-        chrome.contextMenus.onClicked.addListener(this.callback);
+    _callback: null,
+    _entries: [],
+    _createEntry: function(entry) {
+        chrome.contextMenus.create(JSON.parse(JSON.stringify(entry)), function() {
+            void chrome.runtime.lastError;
+        });
     },
-    remove: function() {
-        chrome.contextMenus.onClicked.removeListener(this.callback);
-        chrome.contextMenus.remove(this.menuId);
+    onMustUpdate: function() {},
+    setEntries: function(entries, callback) {
+        entries = entries || [];
+        var n = Math.max(this._entries.length, entries.length),
+            oldEntryId, newEntry;
+        for ( var i = 0; i < n; i++ ) {
+            oldEntryId = this._entries[i];
+            newEntry = entries[i];
+            if ( oldEntryId && newEntry ) {
+                if ( newEntry.id !== oldEntryId ) {
+                    chrome.contextMenus.remove(oldEntryId);
+                    this._createEntry(newEntry);
+                    this._entries[i] = newEntry.id;
+                }
+            } else if ( oldEntryId && !newEntry ) {
+                chrome.contextMenus.remove(oldEntryId);
+            } else if ( !oldEntryId && newEntry ) {
+                this._createEntry(newEntry);
+                this._entries[i] = newEntry.id;
+            }
+        }
+        n = this._entries.length = entries.length;
+        callback = callback || null;
+        if ( callback === this._callback ) {
+            return;
+        }
+        if ( n !== 0 && callback !== null ) {
+            chrome.contextMenus.onClicked.addListener(callback);
+            this._callback = callback;
+        } else if ( n === 0 && this._callback !== null ) {
+            chrome.contextMenus.onClicked.removeListener(this._callback);
+            this._callback = null;
+        }
     }
 };
 
@@ -921,16 +1088,6 @@ vAPI.onLoadAllCompleted = function() {
     var scriptDone = function() {
         vAPI.lastError();
     };
-    var scriptEnd = function(tabId) {
-        if ( vAPI.lastError() ) {
-            return;
-        }
-        vAPI.tabs.injectScript(tabId, {
-            file: 'js/contentscript-end.js',
-            allFrames: true,
-            runAt: 'document_idle'
-        }, scriptDone);
-    };
     var scriptStart = function(tabId) {
         vAPI.tabs.injectScript(tabId, {
             file: 'js/vapi-client.js',
@@ -938,10 +1095,10 @@ vAPI.onLoadAllCompleted = function() {
             runAt: 'document_idle'
         }, function(){ });
         vAPI.tabs.injectScript(tabId, {
-            file: 'js/contentscript-start.js',
+            file: 'js/contentscript.js',
             allFrames: true,
             runAt: 'document_idle'
-        }, function(){ scriptEnd(tabId); });
+        }, scriptDone);
     };
     var bindToTabs = function(tabs) {
         var µb = µBlock;
