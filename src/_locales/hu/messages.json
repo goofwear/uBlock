@@ -39,6 +39,10 @@
     "message":"Névjegy",
     "description":"appears as tab name in dashboard"
   },
+  "advancedSettingsPageName":{
+    "message":"Haladó beállítások",
+    "description":"Title for the advanced settings page"
+  },
   "popupPowerSwitchInfo":{
     "message":"Klikk: uBlock₀ tiltása\/engedélyezése ezen a webhelyen.\n\nCtrl+klikk: csak a jelenlegi oldal tiltása\/engedélyezése.",
     "description":"English: Click: disable\/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
@@ -66,6 +70,10 @@
   "popupTipDashboard":{
     "message":"Kattintson ide a vezérlőpult megnyitásához",
     "description":"English: Click to open the dashboard"
+  },
+  "popupTipZapper":{
+    "message":"Elemváltó mód aktiválása",
+    "description":"Tooltip for the element-zapper icon in the popup panel"
   },
   "popupTipPicker":{
     "message":"Elemválasztó mód aktiválása",
@@ -165,7 +173,7 @@
   },
   "pickerNetFilters":{
     "message":"Hálózati szűrők",
-    "description":"English: Net filters"
+    "description":"English: header for a type of filter in the element picker dialog"
   },
   "pickerCosmeticFilters":{
     "message":"Kozmetikai szűrők",
@@ -205,14 +213,18 @@
   },
   "settingsAdvancedUserPrompt":{
     "message":"Haladó felhasználó vagyok (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>További tudnivalók<\/a>)",
-    "description":"English: "
+    "description":""
+  },
+  "settingsAdvancedUserSettings":{
+    "message":"haladó beállítások",
+    "description":"For the tooltip of a link which gives access to advanced settings"
   },
   "settingsPrefetchingDisabledPrompt":{
     "message":"Előtöltés kikapcsolása (kapcsolódás megakadályozása blokkolt hálózati lekérésekhez)",
     "description":"English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt":{
-    "message":"Hiperlink vizsgálat kikapcsolása",
+    "message":"Hivatkozás-vizsgálat kikapcsolása",
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
@@ -327,25 +339,21 @@
     "message":"Soronként egy URL. A &lsquo;!&rsquo; kezdetű sorok figyelmen kívül maradnak. A szabálytalan URL-ek szintén figyelmen kívül maradnak, hibajelzés nélkül.",
     "description":"English: One URL per line. Lines prefixed with &lsquo;!&rsquo; will be ignored. Invalid URLs will be silently ignored."
   },
-  "3pExternalListsApply":{
-    "message":"Alkalmaz",
-    "description":"English: Parse"
-  },
-  "3pExternalListPurge":{
-    "message":"gyorsítótár ürítése",
-    "description":"English: purge cache"
-  },
-  "3pExternalListNew":{
-    "message":"új verzió érhető el",
-    "description":"English: new version available"
-  },
   "3pExternalListObsolete":{
-    "message":"elavult",
-    "description":"a filter list is 'out of date' (possibly needs to be updated)"
+    "message":"Elavult.",
+    "description":"used as a tooltip for the out-of-date icon beside a list"
   },
   "3pLastUpdate":{
     "message":"Utolsó frissítés: {{ago}}",
-    "description":"English: Last update: {{ago}}, where 'ago' will be replaced with something like '2 days ago'"
+    "description":"used as a tooltip for the clock icon beside a list"
+  },
+  "3pUpdating":{
+    "message":"Frissítés...",
+    "description":"used as a tooltip for the spinner icon beside a list"
+  },
+  "3pNetworkError":{
+    "message":"Egy hálózati hiba megakadályozta az erőforrás frissítését.",
+    "description":"used as a tooltip for error icon beside a list"
   },
   "1pFormatHint":{
     "message":"Soronként egy szűrő. A szűrő lehet egy hostnév, vagy egy Adblock Plus kompatibilis szűrő.\nA &lsquo;!&rsquo; kezdetű sorok figyelmen kívül maradnak.",
@@ -417,7 +425,7 @@
   },
   "whitelistPrompt":{
     "message":"Az alábbi listában felsorolt hostokon a kiegészítő nem fog működni. Soronként egy bejegyzés. Érvénytelen hostnevek figyelmen kívül maradnak.",
-    "description":"English: Your list of host names for which uBlock₀ will be disabled. One host name per line. Invalid host names will be silently ignored."
+    "description":"English: An overview of the content of the dashboard's Whitelist pane."
   },
   "whitelistImport":{
     "message":"Importál és hozzáad",
@@ -531,6 +539,10 @@
     "message":"Wiki",
     "description":"English: project' wiki on Github"
   },
+  "aboutSupport":{
+    "message":"Támogatás",
+    "description":"A link for where to get support"
+  },
   "aboutCode":{
     "message":"Forráskód (GPLv3)",
     "description":"English: Source code (GPLv3)"
@@ -541,7 +553,7 @@
   },
   "aboutBackupDataButton":{
     "message":"Biztonsági mentés fájlba...",
-    "description":"English: Backup to file"
+    "description":"Text for button to create a backup of all settings"
   },
   "aboutBackupFilename":{
     "message":"ublock-mentesem_{{datetime}}.txt",
@@ -569,7 +581,7 @@
   },
   "errorCantConnectTo":{
     "message":"Csatlakozás sikertelen a következő címhez: {{url}}",
-    "description":"English: Network error: unable to connect to {{url}}"
+    "description":"English: Network error: {{msg}}"
   },
   "subscriberConfirm":{
     "message":"uBlock₀: Hozzáadja a következő URL-t a saját szűrő listákhoz?\n\nNév: \"{{title}}\"\nURL: \"{{url}}\"",
@@ -667,13 +679,21 @@
     "message":"Ennek az eszköznek a neve:",
     "description":"used as a prompt for the user to provide a custom device name"
   },
+  "advancedSettingsWarning":{
+    "message":"Figyelem! Haladó beállítások, megváltoztatásuk csak saját felelősségre.",
+    "description":"A warning to users at the top of 'Advanced settings' page"
+  },
   "genericSubmit":{
     "message":"Küldés",
-    "description":"for generic 'submit' buttons"
+    "description":"for generic 'Submit' buttons"
+  },
+  "genericApplyChanges":{
+    "message":"Módosítások alkalmazása",
+    "description":"for generic 'Apply changes' buttons"
   },
   "genericRevert":{
     "message":"Visszaállítás",
-    "description":"for generic 'revert' buttons"
+    "description":"for generic 'Revert' buttons"
   },
   "genericBytes":{
     "message":"bájt",

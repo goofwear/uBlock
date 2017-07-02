@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     uBlock Origin - a browser extension to block requests.
-    Copyright (C) 2014-2016 Raymond Hill
+    Copyright (C) 2014-2017 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -56,7 +56,10 @@ var handleImportFilePicker = function() {
             if ( typeof userData.netWhitelist !== 'string' ) {
                 throw 'Invalid';
             }
-            if ( typeof userData.filterLists !== 'object' ) {
+            if (
+                typeof userData.filterLists !== 'object' &&
+                Array.isArray(userData.selectedFilterLists) === false
+            ) {
                 throw 'Invalid';
             }
         }
@@ -102,14 +105,31 @@ var startImportFilePicker = function() {
 /******************************************************************************/
 
 var exportToFile = function() {
-    messaging.send('dashboard', { what: 'backupUserData' }, onLocalDataReceived);
+    messaging.send('dashboard', { what: 'backupUserData' }, function(response) {
+        if (
+            response instanceof Object === false ||
+            response.userData instanceof Object === false
+        ) {
+            return;
+        }
+        vAPI.download({
+            'url': 'data:text/plain;charset=utf-8,' +
+                   encodeURIComponent(JSON.stringify(response.userData, null, '  ')),
+            'filename': response.localData.lastBackupFile
+        });
+        onLocalDataReceived(response.localData);
+    });
 };
 
 /******************************************************************************/
 
 var onLocalDataReceived = function(details) {
     uDom('#localData > ul > li:nth-of-type(1)').text(
-        vAPI.i18n('settingsStorageUsed').replace('{{value}}', details.storageUsed.toLocaleString())
+        vAPI.i18n('settingsStorageUsed')
+            .replace(
+                '{{value}}',
+                typeof details.storageUsed === 'number' ? details.storageUsed.toLocaleString() : '?'
+            )
     );
 
     var elem, dt;
@@ -138,6 +158,15 @@ var onLocalDataReceived = function(details) {
         uDom('#localData > ul > li:nth-of-type(3) > ul > li:nth-of-type(2)').text(lastRestoreFile);
         uDom('#localData > ul > li:nth-of-type(3)').css('display', '');
     }
+
+    if ( details.cloudStorageSupported === false ) {
+        uDom('#cloud-storage-enabled').attr('disabled', '');
+    }
+    if ( details.privacySettingsSupported === false ) {
+        uDom('#prefetching-disabled').attr('disabled', '');
+        uDom('#hyperlink-auditing-disabled').attr('disabled', '');
+        uDom('#webrtc-ipaddress-hidden').attr('disabled', '');
+    }
 };
 
 /******************************************************************************/
@@ -148,6 +177,15 @@ var resetUserData = function() {
     if ( proceed ) {
         messaging.send('dashboard', { what: 'resetUserData' });
     }
+};
+
+/******************************************************************************/
+
+var synchronizeDOM = function() {
+    document.body.classList.toggle(
+        'advancedUser',
+        uDom.nodeFromId('advanced-user-enabled').checked === true
+    );
 };
 
 /******************************************************************************/
@@ -200,6 +238,7 @@ var onUserSettingsReceived = function(details) {
                         this.getAttribute('data-setting-name'),
                         this.checked
                     );
+                    synchronizeDOM();
                 });
     });
 
@@ -217,6 +256,8 @@ var onUserSettingsReceived = function(details) {
     uDom('#import').on('click', startImportFilePicker);
     uDom('#reset').on('click', resetUserData);
     uDom('#restoreFilePicker').on('change', handleImportFilePicker);
+
+    synchronizeDOM();
 };
 
 /******************************************************************************/

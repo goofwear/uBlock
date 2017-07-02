@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     uBlock Origin - a browser extension to block requests.
-    Copyright (C) 2014-2016 The uBlock Origin authors
+    Copyright (C) 2014-2017 The uBlock Origin authors
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -56,7 +56,12 @@ if ( /^image\/|^text\/plain/.test(contentType) ) {
 
 /******************************************************************************/
 
-var vAPI = self.vAPI = self.vAPI || {};
+// https://bugs.chromium.org/p/project-zero/issues/detail?id=1225&desc=6#c10
+if ( !self.vAPI || self.vAPI.uBO !== true ) {
+    self.vAPI = { uBO: true };
+}
+
+var vAPI = self.vAPI;
 var chrome = self.chrome;
 
 // https://github.com/chrisaljoudi/uBlock/issues/456
@@ -142,25 +147,24 @@ vAPI.setTimeout = vAPI.setTimeout || self.setTimeout.bind(self);
 
 /******************************************************************************/
 
-vAPI.shutdown = (function() {
-    var jobs = [];
-
-    var add = function(job) {
-        jobs.push(job);
-    };
-
-    var exec = function() {
+vAPI.shutdown = {
+    jobs: [],
+    add: function(job) {
+        this.jobs.push(job);
+    },
+    exec: function() {
         var job;
-        while ( (job = jobs.pop()) ) {
+        while ( (job = this.jobs.pop()) ) {
             job();
         }
-    };
-
-    return {
-        add: add,
-        exec: exec
-    };
-})();
+    },
+    remove: function(job) {
+        var pos;
+        while ( (pos = this.jobs.indexOf(job)) !== -1 ) {
+            this.jobs.splice(pos, 1);
+        }
+    }
+};
 
 /******************************************************************************/
 /******************************************************************************/
@@ -361,7 +365,7 @@ vAPI.messaging = {
         if ( listeners === undefined ) {
             return;
         }
-        var pos = this.listeners.indexOf(callback);
+        var pos = listeners.indexOf(callback);
         if ( pos === -1 ) {
             console.error('Listener not found on channel "%s"', channelName);
             return;

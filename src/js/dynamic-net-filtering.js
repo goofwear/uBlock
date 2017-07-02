@@ -1,7 +1,7 @@
 /*******************************************************************************
 
-    uBlock - a browser extension to block requests.
-    Copyright (C) 2014  Raymond Hill
+    uBlock Origin - a browser extension to block requests.
+    Copyright (C) 2014-2017 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global punycode, µBlock */
+/* global punycode */
 /* jshint bitwise: false */
+
+'use strict';
 
 /******************************************************************************/
 
 µBlock.Firewall = (function() {
-
-'use strict';
 
 /******************************************************************************/
 
@@ -92,12 +92,7 @@ var isIPAddress = function(hostname) {
     return hostname.startsWith('[');
 };
 
-/******************************************************************************/
-
 var toBroaderHostname = function(hostname) {
-    if ( isIPAddress(hostname) ) {
-        return '*';
-    }
     var pos = hostname.indexOf('.');
     if ( pos !== -1 ) {
         return hostname.slice(pos + 1);
@@ -105,7 +100,13 @@ var toBroaderHostname = function(hostname) {
     return hostname !== '*' && hostname !== '' ? '*' : '';
 };
 
-Matrix.toBroaderHostname = toBroaderHostname;
+var toBroaderIPAddress = function(ipaddress) {
+    return ipaddress !== '*' && ipaddress !== '' ? '*' : '';
+};
+
+var selectHostnameBroadener = function(hostname) {
+    return isIPAddress(hostname) ? toBroaderIPAddress : toBroaderHostname;
+};
 
 /******************************************************************************/
 
@@ -213,9 +214,6 @@ Matrix.prototype.hasSameRules = function(other, srcHostname, desHostnames) {
 
     // Specific destinations
     for ( var desHostname in desHostnames ) {
-        if ( desHostnames.hasOwnProperty(desHostname) === false ) {
-            continue;
-        }
         ruleKey = '* ' + desHostname;
         if ( (thisRules[ruleKey] || 0) !== (otherRules[ruleKey] || 0) ) {
             return false;
@@ -261,35 +259,7 @@ Matrix.prototype.unsetCell = function(srcHostname, desHostname, type) {
     return true;
 };
 
-/******************************************************************************/
-
-Matrix.prototype.setCellZ = function(srcHostname, desHostname, type, action) {
-    this.evaluateCellZY(srcHostname, desHostname, type);
-    if ( this.r === action ) {
-        return false;
-    }
-    this.setCell(srcHostname, desHostname, type, 0);
-    this.evaluateCellZY(srcHostname, desHostname, type);
-    if ( this.r === action ) {
-        return true;
-    }
-    this.setCell(srcHostname, desHostname, type, action);
-    return true;
-};
-
-/******************************************************************************/
-
-Matrix.prototype.blockCell = function(srcHostname, desHostname, type) {
-    return this.setCellZ(srcHostname, desHostname, type, 1);
-};
-
 // https://www.youtube.com/watch?v=Csewb_eIStY
-
-/******************************************************************************/
-
-Matrix.prototype.allowCell = function(srcHostname, desHostname, type) {
-    return this.setCellZ(srcHostname, desHostname, type, 2);
-};
 
 /******************************************************************************/
 
@@ -337,7 +307,7 @@ var domainFromHostname = µBlock.URI.domainFromHostname;
 
 /******************************************************************************/
 
-Matrix.prototype.evaluateCellZ = function(srcHostname, desHostname, type) {
+Matrix.prototype.evaluateCellZ = function(srcHostname, desHostname, type, broadener) {
     this.type = type;
     var bitOffset = typeBitOffsets[type];
     var s = srcHostname;
@@ -352,10 +322,8 @@ Matrix.prototype.evaluateCellZ = function(srcHostname, desHostname, type) {
                 return v;
             }
         }
-        s = toBroaderHostname(s);
-        if ( s === '' ) {
-            break;
-        }
+        s = broadener(s);
+        if ( s === '' ) { break; }
     }
     // srcHostname is '*' at this point
     this.r = 0;
@@ -365,18 +333,27 @@ Matrix.prototype.evaluateCellZ = function(srcHostname, desHostname, type) {
 /******************************************************************************/
 
 Matrix.prototype.evaluateCellZY = function(srcHostname, desHostname, type) {
-    // Precedence: from most specific to least specific
-
-    // Specific-destination, any party, any type
+    // Pathological cases.
     var d = desHostname;
     if ( d === '' ) {
         this.r = 0;
-        return this;
+        return 0;
     }
+
+    // Prepare broadening handlers -- depends on whether we are dealing with
+    // a hostname or IP address.
+    var broadenSource = selectHostnameBroadener(srcHostname),
+        broadenDestination = selectHostnameBroadener(desHostname);
+
+    // Precedence: from most specific to least specific
+
+    // Specific-destination, any party, any type
     while ( d !== '*' ) {
         this.y = d;
-        if ( this.evaluateCellZ(srcHostname, d, '*') !== 0 ) { return this; }
-        d = toBroaderHostname(d);
+        if ( this.evaluateCellZ(srcHostname, d, '*', broadenSource) !== 0 ) {
+            return this.r;
+        }
+        d = broadenDestination(d);
     }
 
     var thirdParty = is3rdParty(srcHostname, desHostname);
@@ -388,27 +365,39 @@ Matrix.prototype.evaluateCellZY = function(srcHostname, desHostname, type) {
     if ( thirdParty ) {
         // 3rd-party, specific type
         if ( type === 'script' ) {
-            if ( this.evaluateCellZ(srcHostname, '*', '3p-script') !== 0 ) { return this; }
+            if ( this.evaluateCellZ(srcHostname, '*', '3p-script', broadenSource) !== 0 ) {
+                return this.r;
+            }
         } else if ( type === 'sub_frame' ) {
-            if ( this.evaluateCellZ(srcHostname, '*', '3p-frame') !== 0 ) { return this; }
+            if ( this.evaluateCellZ(srcHostname, '*', '3p-frame', broadenSource) !== 0 ) {
+                return this.r;
+            }
         }
         // 3rd-party, any type
-        if ( this.evaluateCellZ(srcHostname, '*', '3p') !== 0 ) { return this; }
+        if ( this.evaluateCellZ(srcHostname, '*', '3p', broadenSource) !== 0 ) {
+            return this.r;
+        }
     } else if ( type === 'script' ) {
         // 1st party, specific type
-        if ( this.evaluateCellZ(srcHostname, '*', '1p-script') !== 0 ) { return this; }
+        if ( this.evaluateCellZ(srcHostname, '*', '1p-script', broadenSource) !== 0 ) {
+            return this.r;
+        }
     }
 
     // Any destination, any party, specific type
     if ( supportedDynamicTypes.hasOwnProperty(type) ) {
-        if ( this.evaluateCellZ(srcHostname, '*', type) !== 0 ) { return this; }
+        if ( this.evaluateCellZ(srcHostname, '*', type, broadenSource) !== 0 ) {
+            return this.r;
+        }
     }
 
     // Any destination, any party, any type
-    if ( this.evaluateCellZ(srcHostname, '*', '*') !== 0 ) { return this; }
+    if ( this.evaluateCellZ(srcHostname, '*', '*', broadenSource) !== 0 ) {
+        return this.r;
+    }
 
     this.type = '';
-    return this;
+    return 0;
 };
 
 // http://youtu.be/gSGk1bQ9rcU?t=25m6s
@@ -416,7 +405,7 @@ Matrix.prototype.evaluateCellZY = function(srcHostname, desHostname, type) {
 /******************************************************************************/
 
 Matrix.prototype.mustAllowCellZY = function(srcHostname, desHostname, type) {
-    return this.evaluateCellZY(srcHostname, desHostname, type).r === 2;
+    return this.evaluateCellZY(srcHostname, desHostname, type) === 2;
 };
 
 /******************************************************************************/
@@ -439,20 +428,41 @@ Matrix.prototype.mustAbort = function() {
 
 /******************************************************************************/
 
-Matrix.prototype.toFilterString = function() {
-    if ( this.r === 0  || this.type === '' ) {
-        return '';
+Matrix.prototype.lookupRuleData = function(src, des, type) {
+    var r = this.evaluateCellZY(src, des, type);
+    if ( r === 0 ) {
+        return null;
     }
-    var body = this.z + ' ' + this.y + ' ' + this.type;
-    if ( this.r === 1 ) {
-        return 'db:' + body + ' block';
-    }
-    if ( this.r === 2 ) {
-        return 'da:' + body + ' allow';
-    }
-    /* this.r === 3 */
-    return 'dn:' + body + ' noop';
+    return {
+        src: this.z,
+        des: this.y,
+        type: this.type,
+        action: r === 1 ? 'block' : (r === 2 ? 'allow' : 'noop')
+    };
 };
+
+/******************************************************************************/
+
+Matrix.prototype.toLogData = function() {
+    if ( this.r === 0  || this.type === '' ) {
+        return;
+    }
+    var logData = {
+        source: 'dynamicHost',
+        result: this.r,
+        raw: this.z + ' ' +
+             this.y + ' ' +
+             this.type + ' ' +
+             this.intToActionMap.get(this.r)
+    };
+    return logData;
+};
+
+Matrix.prototype.intToActionMap = new Map([
+    [ 1, ' block' ],
+    [ 2, ' allow' ],
+    [ 3, ' noop' ]
+]);
 
 /******************************************************************************/
 
@@ -469,9 +479,10 @@ Matrix.prototype.desHostnameFromRule = function(rule) {
 /******************************************************************************/
 
 Matrix.prototype.toString = function() {
-    var out = [];
-    var rule, type, val;
-    var srcHostname, desHostname;
+    var out = [],
+        rule, type, val,
+        srcHostname, desHostname,
+        toUnicode = punycode.toUnicode;
     for ( rule in this.rules ) {
         if ( this.rules.hasOwnProperty(rule) === false ) {
             continue;
@@ -483,12 +494,16 @@ Matrix.prototype.toString = function() {
                 continue;
             }
             val = this.evaluateCell(srcHostname, desHostname, type);
-            if ( val === 0 ) {
-                continue;
+            if ( val === 0 ) { continue; }
+            if ( srcHostname.indexOf('xn--') !== -1 ) {
+                srcHostname = toUnicode(srcHostname);
+            }
+            if ( desHostname.indexOf('xn--') !== -1 ) {
+                desHostname = toUnicode(desHostname);
             }
             out.push(
-                punycode.toUnicode(srcHostname) + ' ' +
-                punycode.toUnicode(desHostname) + ' ' +
+                srcHostname + ' ' +
+                desHostname + ' ' +
                 type + ' ' +
                 actionToNameMap[val]
             );
@@ -500,26 +515,18 @@ Matrix.prototype.toString = function() {
 /******************************************************************************/
 
 Matrix.prototype.fromString = function(text, append) {
-    var textEnd = text.length;
-    var lineBeg = 0, lineEnd;
-    var line, pos, fields;
-    var srcHostname, desHostname, type, action;
+    var lineIter = new µBlock.LineIterator(text),
+        line, pos, fields,
+        srcHostname, desHostname, type, action,
+        reNotASCII = /[^\x20-\x7F]/,
+        toASCII = punycode.toASCII;
 
     if ( append !== true ) {
         this.reset();
     }
 
-    while ( lineBeg < textEnd ) {
-        lineEnd = text.indexOf('\n', lineBeg);
-        if ( lineEnd < 0 ) {
-            lineEnd = text.indexOf('\r', lineBeg);
-            if ( lineEnd < 0 ) {
-                lineEnd = textEnd;
-            }
-        }
-        line = text.slice(lineBeg, lineEnd).trim();
-        lineBeg = lineEnd + 1;
-
+    while ( lineIter.eot() === false ) {
+        line = lineIter.next().trim();
         pos = line.indexOf('# ');
         if ( pos !== -1 ) {
             line = line.slice(0, pos).trim();
@@ -552,8 +559,16 @@ Matrix.prototype.fromString = function(text, append) {
             continue;
         }
 
-        srcHostname = punycode.toASCII(fields[0]);
-        desHostname = punycode.toASCII(fields[1]);
+        // Performance: avoid punycoding if hostnames are made only of
+        // ASCII characters.
+        srcHostname = fields[0];
+        if ( reNotASCII.test(srcHostname) ) {
+            srcHostname = toASCII(srcHostname);
+        }
+        desHostname = fields[1];
+        if ( reNotASCII.test(desHostname) ) {
+            desHostname = toASCII(desHostname);
+        }
 
         // https://github.com/chrisaljoudi/uBlock/issues/1082
         // Discard rules with invalid hostnames

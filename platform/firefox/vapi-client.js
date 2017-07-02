@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     uBlock Origin - a browser extension to block requests.
-    Copyright (C) 2014-2016 The uBlock Origin authors
+    Copyright (C) 2014-2017 The uBlock Origin authors
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,14 +45,12 @@ if ( document instanceof HTMLDocument === false ) {
 
 /******************************************************************************/
 
-// Not all sandboxes are given an rpc function, so assign a dummy one if it is
-// missing -- this avoids the need for testing before use.
+// https://bugs.chromium.org/p/project-zero/issues/detail?id=1225&desc=6#c10
+if ( !self.vAPI || self.vAPI.uBO !== true ) {
+    self.vAPI = { uBO: true };
+}
 
-self.rpc = self.rpc || function(){};
-
-/******************************************************************************/
-
-var vAPI = self.vAPI = self.vAPI || {};
+var vAPI = self.vAPI;
 
 /******************************************************************************/
 
@@ -130,36 +128,36 @@ vAPI.setTimeout = vAPI.setTimeout || function(callback, delay, extra) {
 
 /******************************************************************************/
 
-vAPI.shutdown = (function() {
-    var jobs = [];
-
-    var add = function(job) {
-        jobs.push(job);
-    };
-
-    var exec = function() {
-        //console.debug('Shutting down...');
+vAPI.shutdown = {
+    jobs: [],
+    add: function(job) {
+        this.jobs.push(job);
+    },
+    exec: function() {
         var job;
-        while ( (job = jobs.pop()) ) {
+        while ( (job = this.jobs.pop()) ) {
             job();
         }
-    };
-
-    return {
-        add: add,
-        exec: exec
-    };
-})();
+    },
+    remove: function(job) {
+        var pos;
+        while ( (pos = this.jobs.indexOf(job)) !== -1 ) {
+            this.jobs.splice(pos, 1);
+        }
+    }
+};
 
 /******************************************************************************/
 
 (function() {
+    if ( !self.getScriptTagFilters ) {
+        return;
+    }
     var hostname = location.hostname;
     if ( !hostname ) {
         return;
     }
-    var filters = self.rpc({
-        fnName: 'getScriptTagFilters',
+    var filters = self.getScriptTagFilters({
         rootURL: self.location.href,
         frameURL: self.location.href,
         frameHostname: hostname
@@ -437,43 +435,57 @@ vAPI.messaging.start();
 
 /******************************************************************************/
 
-vAPI.userCSS = (function() {
-    if ( !self.injectCSS ) {
-        return;
-    }
-    var injectCSS = self.injectCSS,
-        removeCSS = self.removeCSS,
-        userCSS = '',
-        sheetURI = '';
-    var load = function() {
-        if ( userCSS === '' || sheetURI !== '' ) { return; }
-        sheetURI = 'data:text/css;charset=utf-8,' + encodeURIComponent(userCSS);
-        injectCSS(sheetURI);
-    };
-    var unload = function() {
-        if ( sheetURI === '' ) { return; }
-        removeCSS(sheetURI);
-        sheetURI = '';
-    };
-    var add = function(cssText) {
-        if ( cssText === '' ) { return; }
-        if ( userCSS !== '' ) { userCSS += '\n'; }
-        userCSS += cssText;
-        unload();
-        load();
-    };
-    var toggle = function(state) {
-        if ( userCSS === '' ) { return; }
-        if ( state === undefined ) {
-            state = sheetURI === '';
+if ( self.injectCSS ) {
+    vAPI.userCSS = {
+        _userCSS: '',
+        _sheetURI: '',
+        _load: function() {
+            if ( this._userCSS === '' || this._sheetURI !== '' ) { return; }
+            this._sheetURI = 'data:text/css;charset=utf-8,' + encodeURIComponent(this._userCSS);
+            self.injectCSS(this._sheetURI);
+        },
+        _unload: function() {
+            if ( this._sheetURI === '' ) { return; }
+            self.removeCSS(this._sheetURI);
+            this._sheetURI = '';
+        },
+        add: function(cssText) {
+            if ( cssText === '' ) { return; }
+            if ( this._userCSS !== '' ) { this._userCSS += '\n'; }
+            this._userCSS += cssText;
+            this._unload();
+            this._load();
+        },
+        remove: function(cssText) {
+            if ( cssText === '' || this._userCSS === '' ) { return; }
+            this._userCSS = this._userCSS.replace(cssText, '').trim();
+            this._unload();
+            this._load();
+        },
+        toggle: function(state) {
+            if ( this._userCSS === '' ) { return; }
+            if ( state === undefined ) {
+                state = this._sheetURI === '';
+            }
+            return state ? this._load() : this._unload();
         }
-        return state ? load() : unload();
     };
-    return {
-        add: add,
-        toggle: toggle
-    };
-})();
+    vAPI.hideNode = vAPI.unhideNode = function(){};
+}
+
+/******************************************************************************/
+
+// https://bugzilla.mozilla.org/show_bug.cgi?id=444165
+// https://github.com/gorhill/uBlock/issues/2256
+//   Not the prettiest solution, but that's the safest/simplest I can think
+//   of at this point. If/when bugzilla issue above is solved, we will need
+//   version detection to decide whether the patch needs to be applied.
+
+vAPI.iframeLoadEventPatch = function(target) {
+    if ( target.localName === 'iframe' ) {
+        target.dispatchEvent(new Event('load'));
+    }
+};
 
 /******************************************************************************/
 

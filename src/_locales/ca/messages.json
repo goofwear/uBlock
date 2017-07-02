@@ -39,6 +39,10 @@
     "message":"Quant a",
     "description":"appears as tab name in dashboard"
   },
+  "advancedSettingsPageName":{
+    "message":"Configuració avançada",
+    "description":"Title for the advanced settings page"
+  },
   "popupPowerSwitchInfo":{
     "message":"Clic: habilita\/inhabilita l'µBlock per a aquest lloc.\n\nCtrl+clic: inhabilita l'µBlock només en aquesta pàgina.",
     "description":"English: Click: disable\/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
@@ -66,6 +70,10 @@
   "popupTipDashboard":{
     "message":"Clic per obrir el tauler de control",
     "description":"English: Click to open the dashboard"
+  },
+  "popupTipZapper":{
+    "message":"Activa el mode d'eliminació d'elements",
+    "description":"Tooltip for the element-zapper icon in the popup panel"
   },
   "popupTipPicker":{
     "message":"Entrar al mode de selecció d'elements",
@@ -165,7 +173,7 @@
   },
   "pickerNetFilters":{
     "message":"Filtres de xarxa",
-    "description":"English: Net filters"
+    "description":"English: header for a type of filter in the element picker dialog"
   },
   "pickerCosmeticFilters":{
     "message":"Filtres cosmètics",
@@ -205,7 +213,11 @@
   },
   "settingsAdvancedUserPrompt":{
     "message":"Sóc un usuari avançat (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Lectura necessària<\/a>)",
-    "description":"English: "
+    "description":""
+  },
+  "settingsAdvancedUserSettings":{
+    "message":"configuració avançada",
+    "description":"For the tooltip of a link which gives access to advanced settings"
   },
   "settingsPrefetchingDisabledPrompt":{
     "message":"Inhabilita la cerca prèvia (per evitar qualsevol connexió de xarxa per a sol·licituds blocades)",
@@ -327,25 +339,21 @@
     "message":"Una URL per línia. Línies amb el símbol &lsquo;!&rsquo; s'ignoraran. Adreces URL no vàlides s'ignoraran silenciosament.",
     "description":"English: One URL per line. Lines prefixed with &lsquo;!&rsquo; will be ignored. Invalid URLs will be silently ignored."
   },
-  "3pExternalListsApply":{
-    "message":"Analitzar",
-    "description":"English: Parse"
-  },
-  "3pExternalListPurge":{
-    "message":"neteja la memòria",
-    "description":"English: purge cache"
-  },
-  "3pExternalListNew":{
-    "message":"nova versió disponible",
-    "description":"English: new version available"
-  },
   "3pExternalListObsolete":{
-    "message":"antiquat",
-    "description":"a filter list is 'out of date' (possibly needs to be updated)"
+    "message":"Obsolet",
+    "description":"used as a tooltip for the out-of-date icon beside a list"
   },
   "3pLastUpdate":{
     "message":"Darrera actualització: {{ago}}",
-    "description":"English: Last update: {{ago}}, where 'ago' will be replaced with something like '2 days ago'"
+    "description":"used as a tooltip for the clock icon beside a list"
+  },
+  "3pUpdating":{
+    "message":"S'està actualitzant...",
+    "description":"used as a tooltip for the spinner icon beside a list"
+  },
+  "3pNetworkError":{
+    "message":"Un error de xarxa va impedir que s'actualitzés el recurs.",
+    "description":"used as a tooltip for error icon beside a list"
   },
   "1pFormatHint":{
     "message":"Un filtre per línia. Un filtre pot ser un domini, o un filtre compatible amb Adblock Plus. Línies amb el símbol &lsquo;!&rsquo; s'ignoraran.",
@@ -417,7 +425,7 @@
   },
   "whitelistPrompt":{
     "message":"Llistat dels noms de servidor amb que s'inhabilitarà l'µBlock. Una entrada per línia. S'ignoraran els noms de servidor no vàlids.",
-    "description":"English: Your list of host names for which uBlock₀ will be disabled. One host name per line. Invalid host names will be silently ignored."
+    "description":"English: An overview of the content of the dashboard's Whitelist pane."
   },
   "whitelistImport":{
     "message":"Imporar i annexar",
@@ -531,6 +539,10 @@
     "message":"Wiki",
     "description":"English: project' wiki on Github"
   },
+  "aboutSupport":{
+    "message":"Suport",
+    "description":"A link for where to get support"
+  },
   "aboutCode":{
     "message":"Codi font (GPLv3)",
     "description":"English: Source code (GPLv3)"
@@ -541,7 +553,7 @@
   },
   "aboutBackupDataButton":{
     "message":"Còpia de seguretat a un fitxer",
-    "description":"English: Backup to file"
+    "description":"Text for button to create a backup of all settings"
   },
   "aboutBackupFilename":{
     "message":"ublock-backup_{{datetime}}.txt",
@@ -568,11 +580,11 @@
     "description":"Message asking user to confirm reset"
   },
   "errorCantConnectTo":{
-    "message":"Impossible connectar a {{url}}",
-    "description":"English: Network error: unable to connect to {{url}}"
+    "message":"No es pot connectar a {{url}}",
+    "description":"English: Network error: {{msg}}"
   },
   "subscriberConfirm":{
-    "message":"µBlock: Voleu afegir aquest enllaç a la llista de filtres personalitzats?\n\nTítol: \"{{title}}\"\nURL: {{url}}",
+    "message":"uBlock₀: Voleu afegir aquest enllaç a la llista de filtres personalitzats?\n\nTítol: \"{{title}}\"\nURL: {{url}}",
     "description":"English: The message seen by the user to confirm subscription to a ABP filter list"
   },
   "elapsedOneMinuteAgo":{
@@ -667,13 +679,21 @@
     "message":"Nom d'aquest dispositiu:",
     "description":"used as a prompt for the user to provide a custom device name"
   },
+  "advancedSettingsWarning":{
+    "message":"Atenció! Canvieu aquestes configuracions avançades sota la vostra responsabilitat.",
+    "description":"A warning to users at the top of 'Advanced settings' page"
+  },
   "genericSubmit":{
     "message":"Envia",
-    "description":"for generic 'submit' buttons"
+    "description":"for generic 'Submit' buttons"
+  },
+  "genericApplyChanges":{
+    "message":"Aplica els canvis",
+    "description":"for generic 'Apply changes' buttons"
   },
   "genericRevert":{
     "message":"Desfer",
-    "description":"for generic 'revert' buttons"
+    "description":"for generic 'Revert' buttons"
   },
   "genericBytes":{
     "message":"bytes",

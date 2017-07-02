@@ -4,7 +4,7 @@
 
 ***
 
-##### BEWARE! uBlock Origin is COMPLETELY UNRELATED to the web site ublock.org**
+##### BEWARE! uBlock Origin is COMPLETELY UNRELATED to the web site ublock.org
 
 The donations sought by the [individual](https://github.com/chrisaljoudi/) behind `ublock.org` (_"to keeps uBlock development possible"_, [a misrepresentation](https://en.wikipedia.org/wiki/UBlock_Origin#uBlock_.28ublock.org.29)) are _not_ benefiting any of those who contributed most to create uBlock Origin ([developers](https://github.com/gorhill/uBlock/graphs/contributors), [translators](https://crowdin.com/project/ublock), and all those who put efforts in opening detailed issues). For the differences between uBlock Origin and uBlock, see the unbiased [Wikipedia article](https://en.wikipedia.org/wiki/UBlock_Origin).
 
@@ -52,6 +52,7 @@ uBlock Origin
   * [Chromium](#chromium)
   * [Firefox](#firefox--firefox-for-android)
   * [Microsoft Edge](#microsoft-edge)
+  - [Safari (macOS)](#safari-macos)
 * [Release History](#release-history)
 * [Privacy policy](https://github.com/gorhill/uBlock/wiki/Privacy-policy)
 * [Wiki](https://github.com/gorhill/uBlock/wiki)
@@ -117,11 +118,11 @@ Feel free to read [about the extension's required permissions](https://github.co
 
 #### Chromium
 
-You can install the latest version [manually](https://github.com/gorhill/uBlock/tree/master/dist#install), from the [Chrome Store](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm), or from the [Opera store](https://addons.opera.com/en-gb/extensions/details/ublock/).
+You can install the latest version [manually](https://github.com/gorhill/uBlock/tree/master/dist#install), from the [Chrome Store](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm), or from the [Opera store](https://addons.opera.com/extensions/details/ublock/).
 
 It is expected that uBlock Origin is compatible with any Chromium-based browsers.
 
-**Important:** Chromium-based browsers do not relay [websocket connections](https://en.wikipedia.org/wiki/WebSocket) to the extension API. This means websites can use websocket connections to bypass uBO (or any other blocker). This can be remediated by installing uBO's companion extension [uBO-WebSocket](https://github.com/gorhill/uBO-WebSocket).
+**Important:** Chromium-based browsers do not relay [websocket connections](https://en.wikipedia.org/wiki/WebSocket) to the extension API. This means websites can use websocket connections to bypass uBO (or any other blocker). This can be remediated by installing uBO's companion extension [uBO-Extra](https://github.com/gorhill/uBO-Extra).
 
 #### Firefox / Firefox for Android
 
@@ -133,14 +134,22 @@ The Firefox version of uBlock Origin has [an extra feature](https://github.com/g
 
 Also of interest: [Deploying uBlock Origin for Firefox with CCK2 and Group Policy](http://decentsecurity.com/ublock-for-firefox-deployment/).
 
-##### Debian/Ubuntu
-
-Users of Debian 9 or later or Ubuntu 16.04 or later may simply
+Thanks to Debian contributor [Sean Whitton](https://wiki.debian.org/SeanWhitton), users of Debian 9 or later or Ubuntu 16.04 or later may simply
 `apt-get install xul-ext-ublock-origin`.
 
 #### Microsoft Edge
 
-Early development version by [@nikrolls](https://github.com/nikrolls): <https://github.com/nikrolls/uBlock-Edge#edge>.
+Developer: [@nikrolls](https://github.com/nikrolls).
+
+Stable version available in [Microsoft Store](https://www.microsoft.com/store/p/app/9nblggh444l4).
+
+Development version available at <https://github.com/nikrolls/uBlock-Edge#edge>.
+
+#### Safari (macOS)
+
+Developer: [@el1t](https://github.com/el1t).
+
+Development version available at <https://github.com/el1t/uBlock-Safari#ublock-originfor-safari>.
 
 #### Note for all browsers
 

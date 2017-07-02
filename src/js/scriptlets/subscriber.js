@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     uBlock Origin - a browser extension to block requests.
-    Copyright (C) 2015-2016 Raymond Hill
+    Copyright (C) 2015-2017 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,9 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global vAPI, HTMLDocument */
+/* global HTMLDocument */
+
+'use strict';
 
 /******************************************************************************/
 
@@ -29,8 +31,6 @@
 /******************************************************************************/
 
 (function() {
-
-'use strict';
 
 /******************************************************************************/
 
@@ -48,26 +48,16 @@ if ( typeof vAPI !== 'object' ) {
 
 /******************************************************************************/
 
-// Only if at least one subscribe link exists on the page.
-
-var subscribeLinks = document.querySelectorAll('a[href^="abp:"],a[href^="https://subscribe.adblockplus.org/?"]');
-if ( subscribeLinks.length === 0 ) {
-    return;
-}
-
-/******************************************************************************/
-
-var onAbpLinkClicked = function(ev) {
+var onMaybeAbpLinkClicked = function(ev) {
     if ( ev.button !== 0 ) {
         return;
     }
-    // This addresses https://github.com/ABPIsrael/EasyListHebrew/issues/89
+    // This addresses https://github.com/easylist/EasyListHebrew/issues/89
     // Also, as per feedback to original fix:
     // https://github.com/gorhill/uBlock/commit/99a3d9631047d33dc7a454296ab3dd0a1e91d6f1
     var target = ev.target;
     if (
         ev.isTrusted === false ||
-        target !== ev.currentTarget ||
         target instanceof HTMLAnchorElement === false
     ) {
         return;
@@ -79,9 +69,7 @@ var onAbpLinkClicked = function(ev) {
     var matches = /^abp:\/*subscribe\/*\?location=([^&]+).*title=([^&]+)/.exec(href);
     if ( matches === null ) {
         matches = /^https?:\/\/.*?[&?]location=([^&]+).*?&title=([^&]+)/.exec(href);
-        if ( matches === null ) {
-            return;
-        }
+        if ( matches === null ) { return; }
     }
 
     var location = decodeURIComponent(matches[1]);
@@ -95,43 +83,18 @@ var onAbpLinkClicked = function(ev) {
         messaging.send('scriptlets', { what: 'reloadAllFilters' });
     };
 
-    var onExternalListsSaved = function() {
-        messaging.send(
-            'scriptlets',
-            {
-                what: 'selectFilterLists',
-                switches: [ { location: location, off: false } ]
-            },
-            onListsSelectionDone
-        );
-    };
-
     var onSubscriberDataReady = function(details) {
         var confirmStr = details.confirmStr
                             .replace('{{url}}', location)
                             .replace('{{title}}', title);
-        if ( !window.confirm(confirmStr) ) {
-            return;
-        }
-
-        // List already subscribed to?
-        // https://github.com/chrisaljoudi/uBlock/issues/1033
-        // Split on line separators, not whitespaces.
-        var text = details.externalLists.trim();
-        var lines = text !== '' ? text.split(/\s*[\n\r]+\s*/) : [];
-        if ( lines.indexOf(location) !== -1 ) {
-            return;
-        }
-        lines.push(location, '');
-
+        if ( !window.confirm(confirmStr) ) { return; }
         messaging.send(
             'scriptlets',
             {
-                what: 'userSettings',
-                name: 'externalLists',
-                value: lines.join('\n')
+                what: 'applyFilterListSelection',
+                toImport: location
             },
-            onExternalListsSaved
+            onListsSelectionDone
         );
     };
 
@@ -142,9 +105,18 @@ var onAbpLinkClicked = function(ev) {
     );
 };
 
-for ( var i = 0; i < subscribeLinks.length; i++ ) {
-    subscribeLinks[i].addEventListener('click', onAbpLinkClicked);
-}
+/******************************************************************************/
+
+// Only if at least one subscribe link exists on the page.
+
+setTimeout(function() {
+    if (
+        document.querySelector('link[rel="canonical"][href="https://filterlists.com/"]') !== null ||
+        document.querySelector('a[href^="abp:"],a[href^="https://subscribe.adblockplus.org/?"]') !== null
+    ) {
+        document.addEventListener('click', onMaybeAbpLinkClicked);
+    }
+}, 997);
 
 /******************************************************************************/
 

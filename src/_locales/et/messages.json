@@ -32,12 +32,16 @@
     "description":"appears as tab name in dashboard"
   },
   "statsPageName":{
-    "message":"uBlock — Võrgutaotluste logi",
+    "message":"uBlock₀ — Võrgutaotluste logi",
     "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"Teave",
     "description":"appears as tab name in dashboard"
+  },
+  "advancedSettingsPageName":{
+    "message":"Täpsemad seaded",
+    "description":"Title for the advanced settings page"
   },
   "popupPowerSwitchInfo":{
     "message":"Klõps: keela\/luba uBlock₀ sellel saidil.\n\nCtrl+klõps: keela uBlock₀ ainult sellel lehel.",
@@ -66,6 +70,10 @@
   "popupTipDashboard":{
     "message":"Klõpsa, et avada töölaud",
     "description":"English: Click to open the dashboard"
+  },
+  "popupTipZapper":{
+    "message":"Sisene elemendi hävitusrežiimi",
+    "description":"Tooltip for the element-zapper icon in the popup panel"
   },
   "popupTipPicker":{
     "message":"Sisene elemendi valikuolekusse",
@@ -165,7 +173,7 @@
   },
   "pickerNetFilters":{
     "message":"Võrgufiltrid",
-    "description":"English: Net filters"
+    "description":"English: header for a type of filter in the element picker dialog"
   },
   "pickerCosmeticFilters":{
     "message":"Ilufiltrid",
@@ -205,18 +213,22 @@
   },
   "settingsAdvancedUserPrompt":{
     "message":"Olen kogenud kasutaja (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Vajalik lugemus<\/a>)",
-    "description":"English: "
+    "description":""
+  },
+  "settingsAdvancedUserSettings":{
+    "message":"täpsemad seaded",
+    "description":"For the tooltip of a link which gives access to advanced settings"
   },
   "settingsPrefetchingDisabledPrompt":{
     "message":"Keela eellaadimine (et vältida ühendusi blokeeritud võrgutaotlustele)",
     "description":"English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt":{
-    "message":"Keela hüperlingi auditeerimine\/majakas",
+    "message":"Keela hüperlingi auditeerimine",
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
-    "message":"Tõkesta WebRTC'l IP-aadressi nägemist",
+    "message":"Tõkesta WebRTC'l kohalike IP-aadresside lekitamist",
     "description":"English: "
   },
   "settingPerSiteSwitchGroup":{
@@ -327,25 +339,21 @@
     "message":"Üks URL rea kohta, märgiga &lsquo;!&rsquo; algavaid ridu eiratakse. Vigased URLid jäetakse vahele.",
     "description":"English: One URL per line. Lines prefixed with &lsquo;!&rsquo; will be ignored. Invalid URLs will be silently ignored."
   },
-  "3pExternalListsApply":{
-    "message":"Rakenda",
-    "description":"English: Parse"
-  },
-  "3pExternalListPurge":{
-    "message":"tühjenda vahemälu",
-    "description":"English: purge cache"
-  },
-  "3pExternalListNew":{
-    "message":"uus versioon on saadaval",
-    "description":"English: new version available"
-  },
   "3pExternalListObsolete":{
     "message":"vananenud",
-    "description":"a filter list is 'out of date' (possibly needs to be updated)"
+    "description":"used as a tooltip for the out-of-date icon beside a list"
   },
   "3pLastUpdate":{
-    "message":"Viimane uuendus: {{ago}}",
-    "description":"English: Last update: {{ago}}, where 'ago' will be replaced with something like '2 days ago'"
+    "message":"Viimane uuendus: {{ago}}.\nUuendamiseks vajutage.",
+    "description":"used as a tooltip for the clock icon beside a list"
+  },
+  "3pUpdating":{
+    "message":"Uuendamine...",
+    "description":"used as a tooltip for the spinner icon beside a list"
+  },
+  "3pNetworkError":{
+    "message":"Ressursi uuendamist takistas võrgu viga.",
+    "description":"used as a tooltip for error icon beside a list"
   },
   "1pFormatHint":{
     "message":"Üks filter rea kohta, filtriks võib olla tavaline domeenilist või Adblock Plusiga-ühilduv filter. Märgiga &lsquo;!&rsquo; algavaid ridu eiratakse.",
@@ -416,8 +424,8 @@
     "description":"English: dynamic rule syntax and full documentation."
   },
   "whitelistPrompt":{
-    "message":"Nimekiri domeenidest, millel uBlock₀ keelatakse. Üks domeen rea kohta, vigaseid domeeninimesid eiratakse.",
-    "description":"English: Your list of host names for which uBlock₀ will be disabled. One host name per line. Invalid host names will be silently ignored."
+    "message":"Valge nimekirja direktiivid määravad, millistel veebilehtedel peaks uBlock Origin keelatud olema. Üks domeen rea kohta. Sobimatuid direktiive vaikselt ignoreeritakse ja kommenteeritakse välja.",
+    "description":"English: An overview of the content of the dashboard's Whitelist pane."
   },
   "whitelistImport":{
     "message":"Impordi ja lisa",
@@ -531,6 +539,10 @@
     "message":"Viki",
     "description":"English: project' wiki on Github"
   },
+  "aboutSupport":{
+    "message":"Tugi",
+    "description":"A link for where to get support"
+  },
   "aboutCode":{
     "message":"Lähtekood (GPLv3)",
     "description":"English: Source code (GPLv3)"
@@ -541,7 +553,7 @@
   },
   "aboutBackupDataButton":{
     "message":"Varunda faili",
-    "description":"English: Backup to file"
+    "description":"Text for button to create a backup of all settings"
   },
   "aboutBackupFilename":{
     "message":"minu-ublocki-varundus_{{datetime}}.txt",
@@ -568,8 +580,8 @@
     "description":"Message asking user to confirm reset"
   },
   "errorCantConnectTo":{
-    "message":"Ei suudetud ühenduda aadressiga {{url}}",
-    "description":"English: Network error: unable to connect to {{url}}"
+    "message":"Võrgu viga: {{msg}}",
+    "description":"English: Network error: {{msg}}"
   },
   "subscriberConfirm":{
     "message":"uBlock₀: Lisan järgneva URLi sinu kohandatud filtrite nimekirja?\n\nPealkiri: \"{{title}}\"\nURL: {{url}}",
@@ -667,13 +679,21 @@
     "message":"Selle seadme nimi:",
     "description":"used as a prompt for the user to provide a custom device name"
   },
+  "advancedSettingsWarning":{
+    "message":"Hoiatus! Muuda täpsemaid seadeid oma vastutusel.",
+    "description":"A warning to users at the top of 'Advanced settings' page"
+  },
   "genericSubmit":{
     "message":"Saada",
-    "description":"for generic 'submit' buttons"
+    "description":"for generic 'Submit' buttons"
+  },
+  "genericApplyChanges":{
+    "message":"Kinnita muudatused",
+    "description":"for generic 'Apply changes' buttons"
   },
   "genericRevert":{
     "message":"Ennista",
-    "description":"for generic 'revert' buttons"
+    "description":"for generic 'Revert' buttons"
   },
   "genericBytes":{
     "message":"baiti",

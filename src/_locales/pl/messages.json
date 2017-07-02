@@ -39,6 +39,10 @@
     "message":"Informacje",
     "description":"appears as tab name in dashboard"
   },
+  "advancedSettingsPageName":{
+    "message":"Ustawienia zaawansowane",
+    "description":"Title for the advanced settings page"
+  },
   "popupPowerSwitchInfo":{
     "message":"Kliknij, aby włączyć\/wyłączyć uBlock₀ na tej witrynie.\n\nKliknij z wciśniętym klawiszem Ctrl, aby włączyć\/wyłączyć uBlock₀ tylko na tej stronie.",
     "description":"English: Click: disable\/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
@@ -66,6 +70,10 @@
   "popupTipDashboard":{
     "message":"Kliknij, aby otworzyć panel sterowania",
     "description":"English: Click to open the dashboard"
+  },
+  "popupTipZapper":{
+    "message":"Przejdź do trybu usuwania elementów",
+    "description":"Tooltip for the element-zapper icon in the popup panel"
   },
   "popupTipPicker":{
     "message":"Przejdź do trybu zaznaczania elementów",
@@ -165,7 +173,7 @@
   },
   "pickerNetFilters":{
     "message":"Filtry sieciowe",
-    "description":"English: Net filters"
+    "description":"English: header for a type of filter in the element picker dialog"
   },
   "pickerCosmeticFilters":{
     "message":"Filtry kosmetyczne",
@@ -204,15 +212,19 @@
     "description":""
   },
   "settingsAdvancedUserPrompt":{
-    "message":"Włącz funkcje zaawansowane (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Informacje<\/a>)",
-    "description":"English: "
+    "message":"Funkcje dla zaawansowanych użytkowników (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Przeczytaj instrukcje<\/a>)",
+    "description":""
+  },
+  "settingsAdvancedUserSettings":{
+    "message":"Ustawienia zaawansowane",
+    "description":"For the tooltip of a link which gives access to advanced settings"
   },
   "settingsPrefetchingDisabledPrompt":{
     "message":"Wyłącz wstępne pobieranie, by uniknąć połączeń z zablokowanymi zapytaniami sieciowymi",
     "description":"English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt":{
-    "message":"Nie śledź kliknięć odnośników\/beaconów",
+    "message":"Nie śledź kliknięć odnośników",
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
@@ -327,25 +339,21 @@
     "message":"W jednym wierszu może być tylko jeden adres URL. Wiersze poprzedzone znakiem wykrzyknika [ ! ] i błędne adresy URL będą pomijane.",
     "description":"English: One URL per line. Lines prefixed with &lsquo;!&rsquo; will be ignored. Invalid URLs will be silently ignored."
   },
-  "3pExternalListsApply":{
-    "message":"Zastosuj",
-    "description":"English: Parse"
-  },
-  "3pExternalListPurge":{
-    "message":"wyczyść pamięć podręczną",
-    "description":"English: purge cache"
-  },
-  "3pExternalListNew":{
-    "message":"jest dostępna nowa wersja",
-    "description":"English: new version available"
-  },
   "3pExternalListObsolete":{
-    "message":"nieaktualna",
-    "description":"a filter list is 'out of date' (possibly needs to be updated)"
+    "message":"Nieaktualne.",
+    "description":"used as a tooltip for the out-of-date icon beside a list"
   },
   "3pLastUpdate":{
-    "message":"Ostatnio zaktualizowano: {{ago}}",
-    "description":"English: Last update: {{ago}}, where 'ago' will be replaced with something like '2 days ago'"
+    "message":"Zaktualizowano: {{ago}}.\nKliknij by wymusić aktualizację.",
+    "description":"used as a tooltip for the clock icon beside a list"
+  },
+  "3pUpdating":{
+    "message":"Aktualizowanie...",
+    "description":"used as a tooltip for the spinner icon beside a list"
+  },
+  "3pNetworkError":{
+    "message":"Błąd sieci uniemożliwił aktualizację zasobów.",
+    "description":"used as a tooltip for error icon beside a list"
   },
   "1pFormatHint":{
     "message":"W jednym wierszu może być tylko jeden filtr. Filtrem może być nazwa hosta lub filtr kompatybilny z dodatkiem AdBlock Plus. Wiersze poprzedzone znakiem wykrzyknika [ ! ] będą pomijane.",
@@ -416,8 +424,8 @@
     "description":"English: dynamic rule syntax and full documentation."
   },
   "whitelistPrompt":{
-    "message":"Lista nazw hostów, na których uBlock₀ zostanie wyłączony. W jednym wierszu może być tylko jeden wpis. Błędne nazwy hostów zostaną pominięte.",
-    "description":"English: Your list of host names for which uBlock₀ will be disabled. One host name per line. Invalid host names will be silently ignored."
+    "message":"Wytyczne wyjątków nakazują, na których stronach uBlock Origin powinien zostać wyłączony. Jeden wpis na linię. Nieprawidłowe wytyczne zostaną bez powiadomienia zignorowane i wykomentowane.",
+    "description":"English: An overview of the content of the dashboard's Whitelist pane."
   },
   "whitelistImport":{
     "message":"Importuj i dołącz",
@@ -531,6 +539,10 @@
     "message":"Informacje",
     "description":"English: project' wiki on Github"
   },
+  "aboutSupport":{
+    "message":"Pomoc",
+    "description":"A link for where to get support"
+  },
   "aboutCode":{
     "message":"Kod źródłowy (GPLv3)",
     "description":"English: Source code (GPLv3)"
@@ -541,7 +553,7 @@
   },
   "aboutBackupDataButton":{
     "message":"Utwórz kopię zapasową",
-    "description":"English: Backup to file"
+    "description":"Text for button to create a backup of all settings"
   },
   "aboutBackupFilename":{
     "message":"ublock-kopia-zapasowa_{{datetime}}.txt",
@@ -568,8 +580,8 @@
     "description":"Message asking user to confirm reset"
   },
   "errorCantConnectTo":{
-    "message":"Nie można się połączyć z {{url}}",
-    "description":"English: Network error: unable to connect to {{url}}"
+    "message":"Błąd sieci: {{msg}}",
+    "description":"English: Network error: {{msg}}"
   },
   "subscriberConfirm":{
     "message":"uBlock₀: Dodać następujący URL do twojej listy filtrów?\n\nTytuł: \"{{title}}\"\nAdres: {{url}}",
@@ -667,13 +679,21 @@
     "message":"Nazwa urządzenia:",
     "description":"used as a prompt for the user to provide a custom device name"
   },
+  "advancedSettingsWarning":{
+    "message":"Uwaga! Te ustawienia zmieniasz na własne ryzyko.",
+    "description":"A warning to users at the top of 'Advanced settings' page"
+  },
   "genericSubmit":{
     "message":"Wyślij",
-    "description":"for generic 'submit' buttons"
+    "description":"for generic 'Submit' buttons"
+  },
+  "genericApplyChanges":{
+    "message":"Zastosuj zmiany",
+    "description":"for generic 'Apply changes' buttons"
   },
   "genericRevert":{
     "message":"Przywróć",
-    "description":"for generic 'revert' buttons"
+    "description":"for generic 'Revert' buttons"
   },
   "genericBytes":{
     "message":"bajty",

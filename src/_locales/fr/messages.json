@@ -39,8 +39,12 @@
     "message":"À propos",
     "description":"appears as tab name in dashboard"
   },
+  "advancedSettingsPageName":{
+    "message":"Paramètres avancés",
+    "description":"Title for the advanced settings page"
+  },
   "popupPowerSwitchInfo":{
-    "message":"Clic : Désactiver\/Activer uBlock Origin pour ce site.\n\nCtrl+clic : Désactiver uBlock Origin uniquement sur cette page.",
+    "message":"Clic : Désactiver\/Activer uBlock₀ pour ce site.\n\nCtrl+clic : Désactiver uBlock₀ uniquement sur cette page.",
     "description":"English: Click: disable\/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
   },
   "popupBlockedRequestPrompt":{
@@ -64,11 +68,15 @@
     "description":"English: or"
   },
   "popupTipDashboard":{
-    "message":"Cliquez pour accéder au tableau de bord",
+    "message":"Ouvrir le Tableau de bord",
     "description":"English: Click to open the dashboard"
   },
+  "popupTipZapper":{
+    "message":"Entrer en mode Zappeur",
+    "description":"Tooltip for the element-zapper icon in the popup panel"
+  },
   "popupTipPicker":{
-    "message":"Aller au sélecteur d'élément",
+    "message":"Entrer en mode Sélecteur",
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
@@ -80,7 +88,7 @@
     "description":"Tooltip for the no-popups per-site switch"
   },
   "popupTipNoLargeMedia":{
-    "message":"Activer\/Désactiver le blocage d'éléments médias à grande taille de ce site",
+    "message":"Bloquer\/Autoriser le chargement d'éléments médias à taille plus importante pour ce site",
     "description":"Tooltip for the no-large-media per-site switch"
   },
   "popupTipNoCosmeticFiltering":{
@@ -88,7 +96,7 @@
     "description":"Tooltip for the no-cosmetic-filtering per-site switch"
   },
   "popupTipNoRemoteFonts":{
-    "message":"Activer\/Désactiver le blocage de polices d'écriture distantes pour ce site",
+    "message":"Autoriser\/Bloquer le téléchargement des polices d'écriture distantes pour ce site",
     "description":"Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipGlobalRules":{
@@ -165,7 +173,7 @@
   },
   "pickerNetFilters":{
     "message":"Filtres de réseau",
-    "description":"English: Net filters"
+    "description":"English: header for a type of filter in the element picker dialog"
   },
   "pickerCosmeticFilters":{
     "message":"Filtres esthétiques",
@@ -200,12 +208,16 @@
     "description":"English: Color-blind friendly"
   },
   "settingsCloudStorageEnabledPrompt":{
-    "message":"Activer le support de stockage dans le nuage",
+    "message":"Activer le stockage des paramètres dans le nuage",
     "description":""
   },
   "settingsAdvancedUserPrompt":{
-    "message":"Activer le mode pour personnes expérimentées (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>À lire<\/a>, page en Anglais)",
-    "description":"English: "
+    "message":"Activer les fonctionnalités avancées (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>À lire<\/a>, page en Anglais)",
+    "description":""
+  },
+  "settingsAdvancedUserSettings":{
+    "message":"Paramètres avancés",
+    "description":"For the tooltip of a link which gives access to advanced settings"
   },
   "settingsPrefetchingDisabledPrompt":{
     "message":"Désactiver la prédiction des actions sur le réseau (afin d'empêcher toute connexion pour les requêtes réseau bloquées)",
@@ -276,7 +288,7 @@
     "description":"English: Parse and enforce Adblock+ element hiding filters."
   },
   "3pParseAllABPHideFiltersInfo":{
-    "message":"<p>Cette option permet de prendre en charge les filtres Adblock Plus de type <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">&ldquo;element hiding&rdquo;<\/a>. Ces filtres ont principalement un impact visuel, servant à dissimuler des éléments nuisibles d'une page Web et qui ne sont pas blocables par le filtrage standard.<\/p><p>L'activation de cette fonctionnalité augmente l'empreinte mémoire de uBlock Origin.<\/p>",
+    "message":"<p>Cette option permet de prendre en charge les filtres Adblock Plus de type <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">&ldquo;element hiding&rdquo;<\/a>. Ces filtres ont principalement un impact visuel, servant à dissimuler des éléments nuisibles d'une page Web et qui ne sont pas blocables par le filtrage standard.<\/p><p>L'activation de cette fonctionnalité augmente l'empreinte mémoire de uBlock₀.<\/p>",
     "description":"Describes the purpose of the 'Parse and enforce cosmetic filters' feature."
   },
   "3pIgnoreGenericCosmeticFilters":{
@@ -327,25 +339,21 @@
     "message":"Une adresse Web par ligne. Les lignes débutant par un &lsquo;!&rsquo; seront ignorées. Les adresses Web invalides seront ignorées sans avertissement.",
     "description":"English: One URL per line. Lines prefixed with &lsquo;!&rsquo; will be ignored. Invalid URLs will be silently ignored."
   },
-  "3pExternalListsApply":{
-    "message":"Appliquer",
-    "description":"English: Parse"
-  },
-  "3pExternalListPurge":{
-    "message":"Vider le cache",
-    "description":"English: purge cache"
-  },
-  "3pExternalListNew":{
-    "message":"Nouvelle version disponible",
-    "description":"English: new version available"
-  },
   "3pExternalListObsolete":{
-    "message":"Potentiellement obsolète",
-    "description":"a filter list is 'out of date' (possibly needs to be updated)"
+    "message":"Obsolète",
+    "description":"used as a tooltip for the out-of-date icon beside a list"
   },
   "3pLastUpdate":{
-    "message":"Dernière mise à jour effectuée : {{ago}}",
-    "description":"English: Last update: {{ago}}, where 'ago' will be replaced with something like '2 days ago'"
+    "message":"Dernière mise à jour effectuée : {{ago}}\nCliquez pour forcer la mise à jour",
+    "description":"used as a tooltip for the clock icon beside a list"
+  },
+  "3pUpdating":{
+    "message":"Mise à jour en cours...",
+    "description":"used as a tooltip for the spinner icon beside a list"
+  },
+  "3pNetworkError":{
+    "message":"Une erreur réseau a empêché la mise à jour de la ressource.",
+    "description":"used as a tooltip for error icon beside a list"
   },
   "1pFormatHint":{
     "message":"Une règle par ligne. Une règle peut être un simple nom d'hôte, ou encore un filtre respectant la syntaxe des filtres Adblock Plus. Les lignes débutant par &lsquo;!&rsquo; seront ignorées.",
@@ -416,8 +424,8 @@
     "description":"English: dynamic rule syntax and full documentation."
   },
   "whitelistPrompt":{
-    "message":"Renseignez ici votre liste d'hôtes à autoriser. Un nom d'hôte par ligne. Les noms d'hôte invalides seront ignorés et vous n'en serez pas averti(e).",
-    "description":"English: Your list of host names for which uBlock₀ will be disabled. One host name per line. Invalid host names will be silently ignored."
+    "message":"La liste blanche indique à uBlock Origin sur quels sites Web il ne doit pas opérer de filtrage. Renseignez une exception par ligne. Toute entrée invalide sera ignorée et vous n'en serez pas averti(e).",
+    "description":"English: An overview of the content of the dashboard's Whitelist pane."
   },
   "whitelistImport":{
     "message":"Importer",
@@ -531,6 +539,10 @@
     "message":"Documentation (en Anglais)",
     "description":"English: project' wiki on Github"
   },
+  "aboutSupport":{
+    "message":"Support (en Anglais)",
+    "description":"A link for where to get support"
+  },
   "aboutCode":{
     "message":"Code Source (Licence GPLv3, en Anglais)",
     "description":"English: Source code (GPLv3)"
@@ -541,7 +553,7 @@
   },
   "aboutBackupDataButton":{
     "message":"Exporter vers un fichier",
-    "description":"English: Backup to file"
+    "description":"Text for button to create a backup of all settings"
   },
   "aboutBackupFilename":{
     "message":"mes-donnees-ublock_{{datetime}}.txt",
@@ -556,7 +568,7 @@
     "description":"English: Reset to default settings..."
   },
   "aboutRestoreDataConfirm":{
-    "message":"Vos paramètres seront remplacés par les données sauvegardées le {{time}}, puis uBlock Origin redémarrera.\n\nProcéder à l'importation ?",
+    "message":"Vos paramètres seront remplacés par les données sauvegardées le {{time}}, puis uBlock₀ redémarrera.\n\nProcéder à l'importation ?",
     "description":"Message asking user to confirm restore"
   },
   "aboutRestoreDataError":{
@@ -564,12 +576,12 @@
     "description":"Message to display when an error occurred during restore"
   },
   "aboutResetDataConfirm":{
-    "message":"Vos paramètres seront effacés, puis uBlock Origin redémarrera.\n\nProcéder à la réinitialisation des paramètres ?",
+    "message":"Vos paramètres seront effacés, puis uBlock₀ redémarrera.\n\nProcéder à la réinitialisation des paramètres ?",
     "description":"Message asking user to confirm reset"
   },
   "errorCantConnectTo":{
-    "message":"Ne peut se connecter sur {{url}}",
-    "description":"English: Network error: unable to connect to {{url}}"
+    "message":"Erreur réseau : {{msg}}",
+    "description":"English: Network error: {{msg}}"
   },
   "subscriberConfirm":{
     "message":"uBlock₀ : Ajouter la ressource Web suivante à votre sélection de listes de filtrage ?\n\nTitre : \"{{title}}\"\nURL : {{url}}",
@@ -612,7 +624,7 @@
     "description":"Firefox-specific: appears as 'uBlock₀ (off)'"
   },
   "docblockedPrompt1":{
-    "message":"uBlock Origin a empêché le chargement de la page suivante :",
+    "message":"uBlock₀ a empêché le chargement de la page suivante :",
     "description":"English: uBlock₀ has prevented the following page from loading:"
   },
   "docblockedPrompt2":{
@@ -667,20 +679,28 @@
     "message":"Nom de ce périphérique :",
     "description":"used as a prompt for the user to provide a custom device name"
   },
+  "advancedSettingsWarning":{
+    "message":"Attention, modifiez ces paramètres avancés à vos risques et périls.",
+    "description":"A warning to users at the top of 'Advanced settings' page"
+  },
   "genericSubmit":{
     "message":"Appliquer",
-    "description":"for generic 'submit' buttons"
+    "description":"for generic 'Submit' buttons"
+  },
+  "genericApplyChanges":{
+    "message":"Appliquer",
+    "description":"for generic 'Apply changes' buttons"
   },
   "genericRevert":{
     "message":"Rétablir",
-    "description":"for generic 'revert' buttons"
+    "description":"for generic 'Revert' buttons"
   },
   "genericBytes":{
     "message":"octets",
     "description":""
   },
   "contextMenuTemporarilyAllowLargeMediaElements":{
-    "message":"Autoriser temporairement les éléments médias à grande taille",
+    "message":"Autoriser temporairement le chargement d'éléments médias à taille plus importante",
     "description":"A context menu entry, present when large media elements have been blocked on the current site"
   },
   "dummy":{

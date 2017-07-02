@@ -8,7 +8,7 @@
     "description":"this will be in the chrome web store: must be 132 characters or less"
   },
   "dashboardName":{
-    "message":"uBlock₀ — Painel de controlo",
+    "message":"uBlock₀ — Painel de controle",
     "description":"English: uBlock₀ — Dashboard"
   },
   "settingsPageName":{
@@ -39,8 +39,12 @@
     "message":"Sobre",
     "description":"appears as tab name in dashboard"
   },
+  "advancedSettingsPageName":{
+    "message":"Configurações avançadas",
+    "description":"Title for the advanced settings page"
+  },
   "popupPowerSwitchInfo":{
-    "message":"Clique: desativar\/ativar o uBlock₀ para este site.\n\nCtrl+clique: desativar o uBlock₀ apenas nesta página.",
+    "message":"Clique: desativa\/ativa o uBlock₀ para este site.\n\nCtrl+clique: desativa o uBlock₀ apenas nesta página.",
     "description":"English: Click: disable\/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
   },
   "popupBlockedRequestPrompt":{
@@ -64,15 +68,19 @@
     "description":"English: or"
   },
   "popupTipDashboard":{
-    "message":"Clique para abrir o painel de controlo",
+    "message":"Clique para abrir o painel",
     "description":"English: Click to open the dashboard"
+  },
+  "popupTipZapper":{
+    "message":"Entrar no modo elemento zapper",
+    "description":"Tooltip for the element-zapper icon in the popup panel"
   },
   "popupTipPicker":{
     "message":"Entrar no modo de seleção de elemento",
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"Abrir o registrador",
+    "message":"Abrir registro de eventos",
     "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
@@ -108,7 +116,7 @@
     "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
-    "message":"tudo",
+    "message":"todos",
     "description":""
   },
   "popupImageRulePrompt":{
@@ -128,7 +136,7 @@
     "description":""
   },
   "popup1pScriptRulePrompt":{
-    "message":"scripts de primeiros",
+    "message":"scripts do domínio",
     "description":""
   },
   "popup3pScriptRulePrompt":{
@@ -165,7 +173,7 @@
   },
   "pickerNetFilters":{
     "message":"Filtros de rede",
-    "description":"English: Net filters"
+    "description":"English: header for a type of filter in the element picker dialog"
   },
   "pickerCosmeticFilters":{
     "message":"Filtros cosméticos",
@@ -180,7 +188,7 @@
     "description":"English: Block element"
   },
   "settingsCollapseBlockedPrompt":{
-    "message":"Ocultar os espaços ocupados por elementos bloqueados",
+    "message":"Ocultar espaços ocupados por elementos bloqueados",
     "description":"English: Hide placeholders of blocked elements"
   },
   "settingsIconBadgePrompt":{
@@ -188,7 +196,7 @@
     "description":"English: Show the number of blocked requests on the icon"
   },
   "settingsTooltipsPrompt":{
-    "message":"Desativar dicas",
+    "message":"Desabilitar dicas de ferramentas",
     "description":"A checkbox in the Settings pane"
   },
   "settingsContextMenuPrompt":{
@@ -196,7 +204,7 @@
     "description":"English: Make use of context menu where appropriate"
   },
   "settingsColorBlindPrompt":{
-    "message":"Cores amigáveis para daltônicos",
+    "message":"Modo daltonismo",
     "description":"English: Color-blind friendly"
   },
   "settingsCloudStorageEnabledPrompt":{
@@ -204,15 +212,19 @@
     "description":""
   },
   "settingsAdvancedUserPrompt":{
-    "message":"Sou um usuário avançado (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Leitura necessária<\/a>)",
-    "description":"English: "
+    "message":"Eu sou um usuário avançado (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>leitura necessária<\/a>)",
+    "description":""
+  },
+  "settingsAdvancedUserSettings":{
+    "message":"configurações avançadas",
+    "description":"For the tooltip of a link which gives access to advanced settings"
   },
   "settingsPrefetchingDisabledPrompt":{
     "message":"Desativar pré-chamadas (para impedir qualquer conexão de pedidos de rede bloqueados)",
     "description":"English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt":{
-    "message":"Desativar auditoria de hiperligações\/'beacon'",
+    "message":"Desativar auditoria em hyperlinks",
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
@@ -224,7 +236,7 @@
     "description":""
   },
   "settingPerSiteSwitchGroupSynopsis":{
-    "message":"Estes comportamentos padrões podem ser substituídos em uma base por site",
+    "message":"Esses comportamentos padrões podem ser substituídos por site",
     "description":""
   },
   "settingsNoCosmeticFilteringPrompt":{
@@ -268,7 +280,7 @@
     "description":"A button in the in the _3rd-party filters_ pane"
   },
   "3pPurgeAll":{
-    "message":"Limpar todas as caches",
+    "message":"Limpar todos caches",
     "description":"A button in the in the _3rd-party filters_ pane"
   },
   "3pParseAllABPHideFiltersPrompt1":{
@@ -276,7 +288,7 @@
     "description":"English: Parse and enforce Adblock+ element hiding filters."
   },
   "3pParseAllABPHideFiltersInfo":{
-    "message":"<p>Esta opção permite a análise e aplicação de <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">filtros de &ldquo;ocultação de elementos&rdquo; compatíveis com o Adblock Plus<\/a>. Estes filtros são essencialmente cosméticos, servindo para ocultar elementos em uma página da web que são consideradas um incômodo visual, e que não podem ser bloqueados pelo motor de filtragem baseado em pedidos de rede.<\/p><p>Ativando este recurso aumenta o consumo de memória do uBlock₀.<\/p>",
+    "message":"<p>Esta opção permite a análise e aplicação de <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">filtros para &ldquo;ocultação de elementos&rdquo; compatíveis com o Adblock Plus<\/a>. Estes filtros são essencialmente cosméticos, servindo para ocultar elementos em uma página da web que são consideradas um incômodo visual, e que não podem ser bloqueados pelo motor de filtragem baseado em pedidos de rede.<\/p><p>Ativando este recurso aumenta o consumo de memória do uBlock₀.<\/p>",
     "description":"Describes the purpose of the 'Parse and enforce cosmetic filters' feature."
   },
   "3pIgnoreGenericCosmeticFilters":{
@@ -284,7 +296,7 @@
     "description":"This will cause uBO to ignore all generic cosmetic filters."
   },
   "3pIgnoreGenericCosmeticFiltersInfo":{
-    "message":"<p>Os filtros cosméticos genéricos são os filtros cosméticos que são destinados a serem aplicados em todos os sites.<p>Embora manuseados eficientemente pelo uBlock₀, os filtros cosméticos genéricos podem ainda contribuir para um grande uso de memória e CPU em algumas páginas, especialmente as grandes e duradouras.<p>Habilitando esta opção irá eliminar a sobrecarga da memória e cpu adicionadas nas páginas de web como resultado da aplicação dos filtros cosméticos genéricos e também irá reduzir o consumo da memória pelo uBlock₀ em si.<p>É recomendado que ative esta opção em dispositivos menos poderosos.",
+    "message":"<p>Os filtros cosméticos genéricos são os filtros cosméticos que são destinados a serem aplicados em todos os sites.<p>Embora manuseados eficientemente pelo uBlock₀, os filtros cosméticos genéricos podem ainda contribuir para um grande uso de memória e CPU em algumas páginas, especialmente as grandes e duradouras.<p>Ativando esta opção irá eliminar a sobrecarga da memória e cpu adicionadas nas páginas de web como resultado da aplicação dos filtros cosméticos genéricos e também irá reduzir o consumo da memória pelo uBlock₀ em si.<p>É recomendado que ative esta opção em dispositivos menos poderosos.",
     "description":"Describes the purpose of the 'Ignore generic cosmetic filters' feature."
   },
   "3pListsOfBlockedHostsHeader":{
@@ -327,25 +339,21 @@
     "message":"Uma URL por linha. As linhas prefixadas com &lsquo;!&rsquo; serão ignoradas. URLs inválidas serão silenciosamente ignoradas.",
     "description":"English: One URL per line. Lines prefixed with &lsquo;!&rsquo; will be ignored. Invalid URLs will be silently ignored."
   },
-  "3pExternalListsApply":{
-    "message":"Analisar",
-    "description":"English: Parse"
-  },
-  "3pExternalListPurge":{
-    "message":"limpar cache",
-    "description":"English: purge cache"
-  },
-  "3pExternalListNew":{
-    "message":"nova versão disponível",
-    "description":"English: new version available"
-  },
   "3pExternalListObsolete":{
-    "message":"desatualizada",
-    "description":"a filter list is 'out of date' (possibly needs to be updated)"
+    "message":"Desatualizada.",
+    "description":"used as a tooltip for the out-of-date icon beside a list"
   },
   "3pLastUpdate":{
-    "message":"Última atualização: {{ago}}",
-    "description":"English: Last update: {{ago}}, where 'ago' will be replaced with something like '2 days ago'"
+    "message":"Última atualização: {{ago}}.\nClique para forçar uma atualização.",
+    "description":"used as a tooltip for the clock icon beside a list"
+  },
+  "3pUpdating":{
+    "message":"Atualizando...",
+    "description":"used as a tooltip for the spinner icon beside a list"
+  },
+  "3pNetworkError":{
+    "message":"Um erro de rede impediu a atualização desse recurso.",
+    "description":"used as a tooltip for error icon beside a list"
   },
   "1pFormatHint":{
     "message":"Adicione um filtro por linha. Um filtro pode ser um simples nome de servidor ou um filtro compatível com o Adblock Plus. Linhas prefixadas com &lsquo;!&rsquo; serão ignoradas.",
@@ -380,7 +388,7 @@
     "description":"This will remove all temporary rules"
   },
   "rulesCommit":{
-    "message":"Aplicar",
+    "message":"Confirmar",
     "description":"This will persist temporary rules"
   },
   "rulesEdit":{
@@ -416,8 +424,8 @@
     "description":"English: dynamic rule syntax and full documentation."
   },
   "whitelistPrompt":{
-    "message":"Sua lista de exceções de servidores para qual o uBlock₀ será desativado. Uma entrada por linha. Servidores inválidos serão silenciosamente ignorados.",
-    "description":"English: Your list of host names for which uBlock₀ will be disabled. One host name per line. Invalid host names will be silently ignored."
+    "message":"Sua lista branca de servidores para qual o uBlock Origin será desativado. Uma regra por linha. Servidores inválidos serão silenciosamente ignorados.",
+    "description":"English: An overview of the content of the dashboard's Whitelist pane."
   },
   "whitelistImport":{
     "message":"Importar e adicionar",
@@ -456,7 +464,7 @@
     "description":"Appears in the logger's tab selector"
   },
   "logBehindTheScene":{
-    "message":"Bastidores",
+    "message":"Por trás da cena",
     "description":"Pretty name for behind-the-scene network requests"
   },
   "logFilterPrompt":{
@@ -531,8 +539,12 @@
     "message":"Documentação",
     "description":"English: project' wiki on Github"
   },
+  "aboutSupport":{
+    "message":"Suporte",
+    "description":"A link for where to get support"
+  },
   "aboutCode":{
-    "message":"Código fonte (GPLv3)",
+    "message":"Código-fonte (GPLv3)",
     "description":"English: Source code (GPLv3)"
   },
   "aboutContributors":{
@@ -541,7 +553,7 @@
   },
   "aboutBackupDataButton":{
     "message":"Backup para arquivo",
-    "description":"English: Backup to file"
+    "description":"Text for button to create a backup of all settings"
   },
   "aboutBackupFilename":{
     "message":"meu-ublock-backup_{{datetime}}.txt",
@@ -568,8 +580,8 @@
     "description":"Message asking user to confirm reset"
   },
   "errorCantConnectTo":{
-    "message":"Não foi possível conectar à {{url}}",
-    "description":"English: Network error: unable to connect to {{url}}"
+    "message":"Erro na rede: {{msg}}",
+    "description":"English: Network error: {{msg}}"
   },
   "subscriberConfirm":{
     "message":"uBlock₀: Adicionar a seguinte URL na sua lista de filtros personalizados?\n\nTítulo: \"{{title}}\"\nURL: {{url}}",
@@ -600,11 +612,11 @@
     "description":"English: {{value}} days ago"
   },
   "showDashboardButton":{
-    "message":"Mostrar Painel de controlo",
+    "message":"Mostrar Painel de Controle",
     "description":"Firefox\/Fennec-specific: Show Dashboard"
   },
   "showNetworkLogButton":{
-    "message":"Mostrar Registro",
+    "message":"Mostrar Registro de Eventos",
     "description":"Firefox\/Fennec-specific: Show Logger"
   },
   "fennecMenuItemBlockingOff":{
@@ -648,11 +660,11 @@
     "description":"English: Permanently"
   },
   "cloudPush":{
-    "message":"Exportar para armazenamento em nuvem",
+    "message":"Exportar para armazenamento na nuvem",
     "description":"tooltip"
   },
   "cloudPull":{
-    "message":"Importar do armazenamento em nuvem",
+    "message":"Importação do armazenamento na nuvem",
     "description":"tooltip"
   },
   "cloudPullAndMerge":{
@@ -667,13 +679,21 @@
     "message":"Nome deste dispositivo:",
     "description":"used as a prompt for the user to provide a custom device name"
   },
+  "advancedSettingsWarning":{
+    "message":"Atenção! Altere essas configurações avançadas por sua própria conta e risco.",
+    "description":"A warning to users at the top of 'Advanced settings' page"
+  },
   "genericSubmit":{
     "message":"Enviar",
-    "description":"for generic 'submit' buttons"
+    "description":"for generic 'Submit' buttons"
+  },
+  "genericApplyChanges":{
+    "message":"Aplicar alterações",
+    "description":"for generic 'Apply changes' buttons"
   },
   "genericRevert":{
     "message":"Reverter",
-    "description":"for generic 'revert' buttons"
+    "description":"for generic 'Revert' buttons"
   },
   "genericBytes":{
     "message":"bytes",

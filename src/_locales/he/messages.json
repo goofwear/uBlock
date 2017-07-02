@@ -39,6 +39,10 @@
     "message":"אודות",
     "description":"appears as tab name in dashboard"
   },
+  "advancedSettingsPageName":{
+    "message":"הגדרות מתקדמות",
+    "description":"Title for the advanced settings page"
+  },
   "popupPowerSwitchInfo":{
     "message":"לחיצה: כבה\/הפעל את uBlock₀ לאתר זה לצמיתות.\n\nCtrl+לחיצה: כבה את uBlock₀ רק בדף זה.",
     "description":"English: Click: disable\/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
@@ -64,8 +68,12 @@
     "description":"English: or"
   },
   "popupTipDashboard":{
-    "message":"לחץ כדי לפתוח את פאנל הקונפיגורציות",
+    "message":"לחץ כדי לפתוח את לוח המחוונים",
     "description":"English: Click to open the dashboard"
+  },
+  "popupTipZapper":{
+    "message":"היכנס למצב מחיקת אלמנט באופן זמני",
+    "description":"Tooltip for the element-zapper icon in the popup panel"
   },
   "popupTipPicker":{
     "message":"היכנס למצב בחירת אלמנט",
@@ -96,7 +104,7 @@
     "description":"Tooltip when hovering the top-most cell of the global-rules column."
   },
   "popupTipLocalRules":{
-    "message":"חוקים לוקאליים: עמודה זו היא עבור חוקים אשר תקפים לאתר הנוכחי בלבד.\nחוקים לוקאליים דורסים את החוקים גלובליים.",
+    "message":"חוקים לוקאליים: עמודה זו היא עבור חוקים אשר תקפים לאתר הנוכחי בלבד.\nחוקים לוקאליים דורסים את החוקים הגלובליים.",
     "description":"Tooltip when hovering the top-most cell of the local-rules column."
   },
   "popupTipSaveRules":{
@@ -165,7 +173,7 @@
   },
   "pickerNetFilters":{
     "message":"מסנני רשת",
-    "description":"English: Net filters"
+    "description":"English: header for a type of filter in the element picker dialog"
   },
   "pickerCosmeticFilters":{
     "message":"מסננים קוסמטיים",
@@ -205,14 +213,18 @@
   },
   "settingsAdvancedUserPrompt":{
     "message":"אני משתמש מתקדם (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>נדרש לקרוא<\/a>)",
-    "description":"English: "
+    "description":""
+  },
+  "settingsAdvancedUserSettings":{
+    "message":"הגדרות מתקדמות",
+    "description":"For the tooltip of a link which gives access to advanced settings"
   },
   "settingsPrefetchingDisabledPrompt":{
     "message":"כבה אחזור מוקדם של משאבים (על מנת למנוע מחיבורים של בקשות רשת חסומות להישלח)",
     "description":"English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt":{
-    "message":"חסום ניסיונות ל Hyperlink auditing\/beacon",
+    "message":"חסום Hyperlink auditing",
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
@@ -327,25 +339,21 @@
     "message":"כתובת אחת בכל שורה. שורות עם קידומת &lsquo;!&rsquo; לא יפורשו. כתובות לא חוקיות לא יפורשו ולא תהיה התראה לכך.",
     "description":"English: One URL per line. Lines prefixed with &lsquo;!&rsquo; will be ignored. Invalid URLs will be silently ignored."
   },
-  "3pExternalListsApply":{
-    "message":"החל",
-    "description":"English: Parse"
-  },
-  "3pExternalListPurge":{
-    "message":"נקה זיכרון מטמון",
-    "description":"English: purge cache"
-  },
-  "3pExternalListNew":{
-    "message":"גרסה חדשה זמינה",
-    "description":"English: new version available"
-  },
   "3pExternalListObsolete":{
-    "message":"עדכון זמין",
-    "description":"a filter list is 'out of date' (possibly needs to be updated)"
+    "message":"לא עדכני.",
+    "description":"used as a tooltip for the out-of-date icon beside a list"
   },
   "3pLastUpdate":{
-    "message":"עדכון אחרון: {{ago}}",
-    "description":"English: Last update: {{ago}}, where 'ago' will be replaced with something like '2 days ago'"
+    "message":"עדכון אחרון: {{ago}}.\nלחץ על מנת לאלץ עידכון.",
+    "description":"used as a tooltip for the clock icon beside a list"
+  },
+  "3pUpdating":{
+    "message":"מעדכן...",
+    "description":"used as a tooltip for the spinner icon beside a list"
+  },
+  "3pNetworkError":{
+    "message":"בעיית רשת מנעה מהמשאב להתעדכן.",
+    "description":"used as a tooltip for error icon beside a list"
   },
   "1pFormatHint":{
     "message":"מסנן אחד לכל שורה. המסנן יכול להיות דומיין פשוט, או מסנן המותאם ל- Adblock Plus. שורות עם קידומת &lsquo;!&rsquo; לא יפורשו.",
@@ -416,8 +424,8 @@
     "description":"English: dynamic rule syntax and full documentation."
   },
   "whitelistPrompt":{
-    "message":"רשימת שמות המתחם שלך בהם uBlock₀ לא יהיה פעיל. רשומה אחת בכל שורה. שמות מתחם לא חוקיים לא יפורשו ולא תהיה התראה לכך.",
-    "description":"English: Your list of host names for which uBlock₀ will be disabled. One host name per line. Invalid host names will be silently ignored."
+    "message":"הרשומות ברשימה הלבנה מציינות באילו דפי אינטרנט uBlock Origin לא יהיה פעיל. רשומה אחת בכל שורה. רשומות לא חוקיות תתעלמנה בשקט ויסומנו כהערות.",
+    "description":"English: An overview of the content of the dashboard's Whitelist pane."
   },
   "whitelistImport":{
     "message":"ייבא וצרף",
@@ -531,6 +539,10 @@
     "message":"ויקי",
     "description":"English: project' wiki on Github"
   },
+  "aboutSupport":{
+    "message":"תמיכה",
+    "description":"A link for where to get support"
+  },
   "aboutCode":{
     "message":"קוד מקור (GPLv3)",
     "description":"English: Source code (GPLv3)"
@@ -541,7 +553,7 @@
   },
   "aboutBackupDataButton":{
     "message":"גבה לקובץ",
-    "description":"English: Backup to file"
+    "description":"Text for button to create a backup of all settings"
   },
   "aboutBackupFilename":{
     "message":"my-ublock-backup_{{datetime}}.txt",
@@ -568,8 +580,8 @@
     "description":"Message asking user to confirm reset"
   },
   "errorCantConnectTo":{
-    "message":"אין אפשרות להתחבר ל {{url}}",
-    "description":"English: Network error: unable to connect to {{url}}"
+    "message":"בעיית רשת: {{msg}}",
+    "description":"English: Network error: {{msg}}"
   },
   "subscriberConfirm":{
     "message":"uBlock₀: הוסף את הכתובת הבאה לרשימת הפילטרים המותאמים אישית שלך?\n\nכותרת: \"{{title}}\"\nכתובת URL: {{url}}",
@@ -667,13 +679,21 @@
     "message":"שם המכשיר:",
     "description":"used as a prompt for the user to provide a custom device name"
   },
+  "advancedSettingsWarning":{
+    "message":"אזהרה! שינוי הגדרות אלו על אחריותך בלבד.",
+    "description":"A warning to users at the top of 'Advanced settings' page"
+  },
   "genericSubmit":{
     "message":"שלח",
-    "description":"for generic 'submit' buttons"
+    "description":"for generic 'Submit' buttons"
+  },
+  "genericApplyChanges":{
+    "message":"החל שינויים",
+    "description":"for generic 'Apply changes' buttons"
   },
   "genericRevert":{
     "message":"החזר למצב הקודם",
-    "description":"for generic 'revert' buttons"
+    "description":"for generic 'Revert' buttons"
   },
   "genericBytes":{
     "message":"בתים",

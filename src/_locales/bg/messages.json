@@ -39,6 +39,10 @@
     "message":"Относно",
     "description":"appears as tab name in dashboard"
   },
+  "advancedSettingsPageName":{
+    "message":"Разширени настройки",
+    "description":"Title for the advanced settings page"
+  },
   "popupPowerSwitchInfo":{
     "message":"Щракване: изключва\/включва uBlock₀ за този сайт.\n\nCtrl + щракване: изключва uBlock₀ само за тази страница.",
     "description":"English: Click: disable\/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
@@ -64,8 +68,12 @@
     "description":"English: or"
   },
   "popupTipDashboard":{
-    "message":"Щракнете, за да отворите таблото",
+    "message":"Табло с настройки",
     "description":"English: Click to open the dashboard"
+  },
+  "popupTipZapper":{
+    "message":"Премахване на отделен елемент",
+    "description":"Tooltip for the element-zapper icon in the popup panel"
   },
   "popupTipPicker":{
     "message":"Блокиране на отделен елемент",
@@ -165,7 +173,7 @@
   },
   "pickerNetFilters":{
     "message":"Мрежови филтри",
-    "description":"English: Net filters"
+    "description":"English: header for a type of filter in the element picker dialog"
   },
   "pickerCosmeticFilters":{
     "message":"Козметични филтри",
@@ -205,14 +213,18 @@
   },
   "settingsAdvancedUserPrompt":{
     "message":"Аз съм опитен потребител (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Допълнително четиво<\/a>)",
-    "description":"English: "
+    "description":""
+  },
+  "settingsAdvancedUserSettings":{
+    "message":"разширени настройки",
+    "description":"For the tooltip of a link which gives access to advanced settings"
   },
   "settingsPrefetchingDisabledPrompt":{
     "message":"Изключване на предварителното извличане (за избягване на всяка връзка за блокираните мрежови заявки)",
     "description":"English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt":{
-    "message":"Изключване на проверката за препратки\/предупреждения",
+    "message":"Изключване на проверката за препратки",
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
@@ -327,25 +339,21 @@
     "message":"Един адрес на ред. Редовете с представка &lsquo;!&rsquo; ще бъдат игнорирани. Невалидните адреси също ще бъдат игнорирани.",
     "description":"English: One URL per line. Lines prefixed with &lsquo;!&rsquo; will be ignored. Invalid URLs will be silently ignored."
   },
-  "3pExternalListsApply":{
-    "message":"Анализиране",
-    "description":"English: Parse"
-  },
-  "3pExternalListPurge":{
-    "message":"Изчистване на кеш паметта",
-    "description":"English: purge cache"
-  },
-  "3pExternalListNew":{
-    "message":"Налична актуализация",
-    "description":"English: new version available"
-  },
   "3pExternalListObsolete":{
     "message":"Остарял",
-    "description":"a filter list is 'out of date' (possibly needs to be updated)"
+    "description":"used as a tooltip for the out-of-date icon beside a list"
   },
   "3pLastUpdate":{
-    "message":"Последна актуализация: {{ago}}",
-    "description":"English: Last update: {{ago}}, where 'ago' will be replaced with something like '2 days ago'"
+    "message":"Последна актуализация: {{ago}}\nЩракнете за принудително актуализиране.",
+    "description":"used as a tooltip for the clock icon beside a list"
+  },
+  "3pUpdating":{
+    "message":"Актуализиране...",
+    "description":"used as a tooltip for the spinner icon beside a list"
+  },
+  "3pNetworkError":{
+    "message":"Актуализирането на ресурса е прекратено заради грешка в мрежата.",
+    "description":"used as a tooltip for error icon beside a list"
   },
   "1pFormatHint":{
     "message":"Един филтър на ред. Това може да бъде обикновен адрес или съвместим с Adblock Plus филтър. Редовете с представка &lsquo;!&rsquo; ще бъдат игнорирани.",
@@ -417,7 +425,7 @@
   },
   "whitelistPrompt":{
     "message":"Списък на вашите адреси, за които uBlock₀ ще бъде изключен. Един елемент на ред. Невалидните адреси ще бъдат игнорирани.",
-    "description":"English: Your list of host names for which uBlock₀ will be disabled. One host name per line. Invalid host names will be silently ignored."
+    "description":"English: An overview of the content of the dashboard's Whitelist pane."
   },
   "whitelistImport":{
     "message":"Внасяне от файл...",
@@ -531,6 +539,10 @@
     "message":"Wiki",
     "description":"English: project' wiki on Github"
   },
+  "aboutSupport":{
+    "message":"Поддръжка",
+    "description":"A link for where to get support"
+  },
   "aboutCode":{
     "message":"Изходен код (GPLv3)",
     "description":"English: Source code (GPLv3)"
@@ -541,7 +553,7 @@
   },
   "aboutBackupDataButton":{
     "message":"Изнасяне във файл",
-    "description":"English: Backup to file"
+    "description":"Text for button to create a backup of all settings"
   },
   "aboutBackupFilename":{
     "message":"моето-ublock-резервно-копие_{{datetime}}.txt",
@@ -568,8 +580,8 @@
     "description":"Message asking user to confirm reset"
   },
   "errorCantConnectTo":{
-    "message":"Неуспешно свързване с {{url}}",
-    "description":"English: Network error: unable to connect to {{url}}"
+    "message":"Неуспешно свързване: {{msg}}",
+    "description":"English: Network error: {{msg}}"
   },
   "subscriberConfirm":{
     "message":"uBlock₀: Добавяне на следния адрес към вашият списък с потребителски филтри?\n\nИме: \"{{title}}\"\nURL адрес: {{url}}",
@@ -667,13 +679,21 @@
     "message":"Име на това устройство:",
     "description":"used as a prompt for the user to provide a custom device name"
   },
+  "advancedSettingsWarning":{
+    "message":"Внимание! Променяте настройките на свой собствен риск.",
+    "description":"A warning to users at the top of 'Advanced settings' page"
+  },
   "genericSubmit":{
     "message":"Изпращане",
-    "description":"for generic 'submit' buttons"
+    "description":"for generic 'Submit' buttons"
+  },
+  "genericApplyChanges":{
+    "message":"Прилагане на промените",
+    "description":"for generic 'Apply changes' buttons"
   },
   "genericRevert":{
     "message":"Връщане",
-    "description":"for generic 'revert' buttons"
+    "description":"for generic 'Revert' buttons"
   },
   "genericBytes":{
     "message":"байта",
