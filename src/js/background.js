@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     uBlock Origin - a browser extension to block requests.
-    Copyright (C) 2014-2017 Raymond Hill
+    Copyright (C) 2014-2018 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -95,6 +95,7 @@ var µBlock = (function() { // jshint ignore:line
         // Features detection.
         privacySettingsSupported: vAPI.browserSettings instanceof Object,
         cloudStorageSupported: vAPI.cloud instanceof Object,
+        canFilterResponseBody: vAPI.net.canFilterResponseBody === true,
 
         // https://github.com/chrisaljoudi/uBlock/issues/180
         // Whitelist directives need to be loaded once the PSL is available
@@ -105,7 +106,6 @@ var µBlock = (function() { // jshint ignore:line
             'behind-the-scene',
             'chrome-extension-scheme',
             'chrome-scheme',
-            'loopconversation.about-scheme',
             'moz-extension-scheme',
             'opera-scheme',
             'vivaldi-scheme',
@@ -121,8 +121,8 @@ var µBlock = (function() { // jshint ignore:line
 
         // read-only
         systemSettings: {
-            compiledMagic: 'pwvcdyqfkuek',
-            selfieMagic: 'pwvcdyqfkuek'
+            compiledMagic: 'puuijtkfpspv',
+            selfieMagic: 'tuqilngsxkwo'
         },
 
         restoreBackupSettings: {
@@ -154,9 +154,14 @@ var µBlock = (function() { // jshint ignore:line
         noopFunc: function(){},
 
         apiErrorCount: 0,
-        mouseX: -1,
-        mouseY: -1,
-        mouseURL: '',
+
+        mouseEventRegister: {
+            tabId: '',
+            x: -1,
+            y: -1,
+            url: ''
+        },
+
         epickerTarget: '',
         epickerZap: false,
         epickerEprom: null,
